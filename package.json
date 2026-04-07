@@ -13,6 +13,8 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,mjs}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,mjs}\"",
+    "sanity": "sanity",
+    "sanity:typegen": "sanity schema extract && sanity typegen generate",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -26,15 +28,16 @@
   },
   "dependencies": {
     "@atproto/api": "^0.19.6",
-    "@sanity/image-url": "^2.1.1",
-    "@sanity/vision": "^5.20.0",
+    "@sanity/image-url": "2",
+    "@sanity/vision": "5",
     "@sanity/webhook": "^4.0.4",
     "next": "16.2.2",
     "next-intl": "^4.9.0",
-    "next-sanity": "^12.2.1",
+    "next-sanity": "12",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "sanity": "^5.20.0",
+    "sanity": "5",
+    "styled-components": "^6.3.12",
     "twitter-api-v2": "^1.29.0"
   },
   "devDependencies": {
