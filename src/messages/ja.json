@@ -1,15 +1,33 @@
 {
   "Brand": {
-    "name": "釜山暮らし。いもじゃも",
+    "name": "釜山暮らし。いもじょも",
+    "short": "いもじょも",
     "tagline": "釜山で暮らす・学ぶ・旅する、等身大のリアル"
   },
   "Nav": {
     "home": "ホーム",
-    "life": "暮らす",
-    "study": "学ぶ",
-    "trip": "旅する",
+    "life": "釜山ライフ",
+    "study": "留学生活・準備",
+    "trip": "旅行",
     "qa": "Q&A",
     "about": "About"
+  },
+  "Header": {
+    "login": "LOG IN",
+    "menu": "MENU",
+    "loginComingSoon": "ログイン機能は準備中です"
+  },
+  "Menu": {
+    "title": "MENU",
+    "close": "閉じる",
+    "topPage": "Top page",
+    "blog": "Blog",
+    "qa": "Q&A",
+    "privacyPolicy": "privacy policy",
+    "termsOfUse": "Terms of use",
+    "contact": "Contact",
+    "instagram": "Instagram",
+    "language": "Language"
   },
   "LocaleSwitcher": {
     "label": "言語",
@@ -17,32 +35,15 @@
     "ko": "한국어"
   },
   "Home": {
-    "hero": {
-      "title": "釜山のリアルを、等身大で。",
-      "lead": "学びたい人、暮らしたい人、旅したい人。韓国語コミュニティ「소코소코」が届ける、釜山のいま。"
-    },
+    "newLabel": "New?",
     "pillars": {
-      "title": "3つのテーマで楽しむ",
-      "life": {
-        "title": "暮らす",
-        "desc": "物件・生活費・手続き・日常のリアル"
-      },
-      "study": {
-        "title": "学ぶ",
-        "desc": "語学堂・独学・使えるフレーズ・学習ログ"
-      },
-      "trip": {
-        "title": "旅する",
-        "desc": "観光・グルメ・交通・釜山ローカルの楽しみ方"
-      }
-    },
-    "newSection": {
-      "title": "新着の記事",
-      "readMore": "もっと読む"
+      "life": "釜山ライフ",
+      "study": "留学生活・準備",
+      "trip": "旅行"
     },
     "comingSoon": "近日公開"
   },
   "Footer": {
-    "copyright": "© {year} 釜山暮らし。いもじゃも"
+    "copyright": "© {year} 釜山暮らし。いもじょも"
   }
 }
