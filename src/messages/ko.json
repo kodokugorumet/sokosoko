@@ -1,15 +1,33 @@
 {
   "Brand": {
-    "name": "부산 살이. 이모자모",
-    "tagline": "부산에서 살고, 배우고, 여행하는 진짜 이야기"
+    "name": "부산 살이. 이모저모",
+    "short": "이모저모",
+    "tagline": "부산에서 살고·배우고·여행하는, 있는 그대로의 일상"
   },
   "Nav": {
     "home": "홈",
-    "life": "살다",
-    "study": "배우다",
-    "trip": "여행하다",
+    "life": "부산 라이프",
+    "study": "유학 생활·준비",
+    "trip": "여행",
     "qa": "Q&A",
     "about": "About"
+  },
+  "Header": {
+    "login": "LOG IN",
+    "menu": "MENU",
+    "loginComingSoon": "로그인 기능은 준비 중입니다"
+  },
+  "Menu": {
+    "title": "MENU",
+    "close": "닫기",
+    "topPage": "Top page",
+    "blog": "Blog",
+    "qa": "Q&A",
+    "privacyPolicy": "privacy policy",
+    "termsOfUse": "Terms of use",
+    "contact": "Contact",
+    "instagram": "Instagram",
+    "language": "Language"
   },
   "LocaleSwitcher": {
     "label": "언어",
@@ -17,32 +35,15 @@
     "ko": "한국어"
   },
   "Home": {
-    "hero": {
-      "title": "부산의 진짜를, 있는 그대로.",
-      "lead": "배우고 싶은 사람, 살고 싶은 사람, 여행하고 싶은 사람. 한국어 커뮤니티 ‘소코소코’가 전하는 지금의 부산."
-    },
+    "newLabel": "New?",
     "pillars": {
-      "title": "세 가지 테마로 즐기기",
-      "life": {
-        "title": "살다",
-        "desc": "집·생활비·행정·일상의 진짜 이야기"
-      },
-      "study": {
-        "title": "배우다",
-        "desc": "어학당·독학·실전 표현·학습 기록"
-      },
-      "trip": {
-        "title": "여행하다",
-        "desc": "관광·맛집·교통·부산 로컬 즐기는 법"
-      }
+      "life": "부산 라이프",
+      "study": "유학 생활·준비",
+      "trip": "여행"
     },
-    "newSection": {
-      "title": "새로운 글",
-      "readMore": "더 보기"
-    },
-    "comingSoon": "공개 예정"
+    "comingSoon": "곧 공개됩니다"
   },
   "Footer": {
-    "copyright": "© {year} 부산 살이. 이모자모"
+    "copyright": "© {year} 부산 살이. 이모저모"
   }
 }
