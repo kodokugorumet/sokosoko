@@ -1,0 +1,26 @@
+name: 🐛 Bug report
+description: バグ報告 / 버그 리포트
+labels: ['type: bug']
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 何が起きたか / 무슨 일이 있었나요
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待していた挙動 / 기대 동작
+  - type: textarea
+    id: repro
+    attributes:
+      label: 再現手順 / 재현 방법
+      placeholder: |
+        1. ...
+        2. ...
+  - type: input
+    id: env
+    attributes:
+      label: 環境 / 환경
+      placeholder: 'Browser / OS / URL'

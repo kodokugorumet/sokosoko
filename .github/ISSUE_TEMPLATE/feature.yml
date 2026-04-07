@@ -1,0 +1,24 @@
+name: ✨ Feature request
+description: 新機能・改善提案 / 새 기능 · 개선 제안
+labels: ['type: feat']
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: 背景 / 배경
+      description: なぜ必要か / 왜 필요한가
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案 / 제안
+    validations:
+      required: true
+  - type: textarea
+    id: ac
+    attributes:
+      label: 受け入れ基準 / 완료 조건
+      placeholder: |
+        - [ ] ...
+        - [ ] ...

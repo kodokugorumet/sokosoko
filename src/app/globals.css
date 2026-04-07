@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+
+:root {
+  --background: #fafaf7;
+  --foreground: #1c1c1a;
+  --accent: #d4673b; /* 釜山の夕日 */
+  --muted: #f2efe8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-noto-sans-jp), var(--font-noto-sans-kr), system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111110;
+    --foreground: #f5f3ee;
+    --accent: #e07d4d;
+    --muted: #1d1d1b;
+  }
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
