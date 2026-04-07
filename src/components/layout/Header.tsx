@@ -1,35 +1,20 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { LocaleSwitcher } from './LocaleSwitcher';
+import { HeaderActions } from './HeaderActions';
 
 export async function Header() {
-  const t = await getTranslations();
-  const navItems = [
-    { key: 'life', href: '/life' },
-    { key: 'study', href: '/study' },
-    { key: 'trip', href: '/trip' },
-    { key: 'qa', href: '/qa' },
-    { key: 'about', href: '/about' },
-  ] as const;
+  const t = await getTranslations('Brand');
 
   return (
-    <header className="sticky top-0 z-40 border-b border-zinc-200/60 bg-[var(--background)]/80 backdrop-blur dark:border-zinc-800/60">
+    <header className="sticky top-0 z-30 border-b border-zinc-200/60 bg-[var(--background)]/90 backdrop-blur dark:border-zinc-800/60">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-bold tracking-tight">
-          {t('Brand.name')}
+        <Link
+          href="/"
+          className="font-hand text-base tracking-tight underline decoration-1 underline-offset-4 sm:text-lg"
+        >
+          {t('name')}
         </Link>
-        <nav className="hidden items-center gap-8 md:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className="text-sm font-medium text-zinc-600 transition-colors hover:text-[var(--accent)] dark:text-zinc-300"
-            >
-              {t(`Nav.${item.key}`)}
-            </Link>
-          ))}
-        </nav>
-        <LocaleSwitcher />
+        <HeaderActions />
       </div>
     </header>
   );

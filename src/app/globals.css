@@ -1,26 +1,40 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #fafaf7;
-  --foreground: #1c1c1a;
-  --accent: #d4673b; /* 釜山の夕日 */
-  --muted: #f2efe8;
+  /* 노트북·종이 무드: 거의 순백 + 잉크 블랙 + 분홍 액센트 */
+  --background: #ffffff;
+  --foreground: #1a1a18;
+  --ink: #111111;
+  --paper: #fafaf7;
+  --accent: #e8728c; /* 마스코트 후디 분홍 */
+  --accent-soft: #fde7ec;
+  --muted: #f5f5f2;
+  --border: #1a1a18;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
   --color-muted: var(--muted);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
   --font-sans: var(--font-noto-sans-jp), var(--font-noto-sans-kr), system-ui, sans-serif;
+  --font-hand:
+    var(--font-klee-one), var(--font-gaegu), var(--font-noto-sans-jp), system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #111110;
     --foreground: #f5f3ee;
-    --accent: #e07d4d;
+    --ink: #f5f3ee;
+    --paper: #1a1a18;
+    --accent: #f08aa1;
+    --accent-soft: #2a1418;
     --muted: #1d1d1b;
+    --border: #f5f3ee;
   }
 }
 
@@ -34,4 +48,15 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Handwriting utility — apply to brand / hero wordmark / hand-drawn labels */
+.font-hand {
+  font-family: var(--font-hand);
+}
+
+/* Hand-drawn box: simple thin black border + slight tilt feel */
+.hand-box {
+  border: 1.5px solid var(--border);
+  background: var(--background);
 }
