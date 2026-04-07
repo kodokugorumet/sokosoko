@@ -1,0 +1,27 @@
+/**
+ * Cloudflare Workers configuration for the sokosoko Next.js 16 app,
+ * deployed via the @opennextjs/cloudflare adapter.
+ *
+ * Docs: https://opennext.js.org/cloudflare/get-started
+ *
+ * 환경변수 / Secrets
+ * - NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET, NEXT_PUBLIC_SANITY_API_VERSION
+ *   는 build 시점에 baked in 되므로, GitHub Actions 또는 Cloudflare 대시보드의
+ *   "Variables and Secrets" 에 등록해 둬야 합니다 (build env).
+ * - 런타임 시크릿 (예: SANITY_REVALIDATE_SECRET) 은 `wrangler secret put NAME` 로 등록.
+ * - 로컬 미리보기는 .dev.vars 파일을 사용합니다.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sokosoko",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-03-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

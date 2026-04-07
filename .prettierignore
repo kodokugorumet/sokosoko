@@ -6,3 +6,6 @@ build
 coverage
 .vercel
 next-env.d.ts
+cloudflare-env.d.ts
+.open-next
+.wrangler
