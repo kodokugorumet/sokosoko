@@ -6,6 +6,8 @@ import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { PortableTextRenderer } from '@/components/post/PortableTextRenderer';
 import { PostCard } from '@/components/post/PostCard';
+import { ShareButtons } from '@/components/post/ShareButtons';
+import { estimateReadingMinutes } from '@/lib/reading-time';
 import { urlFor } from '../../../../../sanity/lib/image';
 import { sanityFetch } from '../../../../../sanity/lib/fetch';
 import {
@@ -155,6 +157,10 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const usedFallback = (!primaryBody || primaryBody.length === 0) && !!fallbackBody?.length;
   const body = usedFallback ? fallbackBody : primaryBody;
 
+  // Derived from the rendered body so the number reflects the locale the
+  // reader actually sees (fallback included). Floor of 1 minute.
+  const readingMinutes = estimateReadingMinutes(body);
+
   // Canonical article URL — default locale lives at `/`, others at `/{locale}`.
   const canonicalPath = `/${pillar}/${slug}`;
   const canonicalUrl =
@@ -237,6 +243,8 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             {tierBadge} {authorName}
           </span>
           <time dateTime={post.publishedAt}>{formatDate(post.publishedAt, loc)}</time>
+          <span aria-hidden="true">·</span>
+          <span>{t('readingTime', { minutes: readingMinutes })}</span>
         </div>
       </header>
 
@@ -268,6 +276,8 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       ) : (
         <p className="text-sm text-zinc-500">—</p>
       )}
+
+      <ShareButtons url={canonicalUrl} title={title} />
 
       {related.length > 0 ? (
         <section className="mt-16 border-t border-[var(--border)] pt-10">
