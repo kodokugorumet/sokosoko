@@ -1,7 +1,13 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 import { sanityFetch } from '../../sanity/lib/fetch';
-import { ALL_POST_SLUGS_QUERY, type PostSlug, type Pillar } from '../../sanity/lib/queries';
+import {
+  ALL_POST_SLUGS_QUERY,
+  ALL_QUESTION_SLUGS_QUERY,
+  type PostSlug,
+  type QuestionSlug,
+  type Pillar,
+} from '../../sanity/lib/queries';
 
 // Static paths that always exist for every locale.
 const STATIC_PATHS = ['', '/about', '/contact', '/qa'] as const;
@@ -27,12 +33,19 @@ function alternatesFor(path: string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  // One Sanity fetch for every published post. Tagged `post` so the
-  // /api/revalidate webhook refreshes sitemap.xml alongside page routes.
-  const posts = await sanityFetch<PostSlug[]>({
-    query: ALL_POST_SLUGS_QUERY,
-    tags: ['post', 'sitemap'],
-  });
+  // Parallel fetches for every published post and question. Tagged with
+  // the same `post`/`question` tags the webhook uses so sitemap.xml gets
+  // invalidated alongside the page routes.
+  const [posts, questions] = await Promise.all([
+    sanityFetch<PostSlug[]>({
+      query: ALL_POST_SLUGS_QUERY,
+      tags: ['post', 'sitemap'],
+    }),
+    sanityFetch<QuestionSlug[]>({
+      query: ALL_QUESTION_SLUGS_QUERY,
+      tags: ['question', 'sitemap'],
+    }),
+  ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.flatMap((path) =>
     routing.locales.map((locale) => ({
@@ -69,5 +82,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   });
 
-  return [...staticEntries, ...pillarEntries, ...postEntries];
+  const questionEntries: MetadataRoute.Sitemap = questions.flatMap((q) => {
+    if (!q.slug) return [];
+    const path = `/qa/${q.slug}`;
+    const lastMod = q._updatedAt ?? q.askedAt;
+    return routing.locales.map((locale) => ({
+      url: urlFor(locale, path),
+      lastModified: lastMod ? new Date(lastMod) : now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+      alternates: alternatesFor(path),
+    }));
+  });
+
+  return [...staticEntries, ...pillarEntries, ...postEntries, ...questionEntries];
 }

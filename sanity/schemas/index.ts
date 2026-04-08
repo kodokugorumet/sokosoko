@@ -4,6 +4,7 @@ import { author } from './author';
 import { category } from './category';
 import { tag } from './tag';
 import { post } from './post';
+import { question } from './question';
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   bilingualString,
@@ -12,4 +13,5 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   category,
   tag,
   post,
+  question,
 ];

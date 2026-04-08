@@ -8,7 +8,7 @@ import type { NextRequest } from 'next/server';
  * Configure in manage.sanity.io → API → Webhooks:
  *   - URL:        https://<deployment>/api/revalidate
  *   - Trigger on: Create / Update / Delete
- *   - Filter:     _type in ["post","category","author"]
+ *   - Filter:     _type in ["post","category","author","question"]
  *   - Projection: {
  *                   _type,
  *                   "slug": slug.current,
@@ -69,10 +69,18 @@ export async function POST(req: NextRequest) {
   };
 
   tag('sanity');
-  tag('post');
 
-  if (body.pillar) tag(`pillar:${body.pillar}`);
-  if (body.slug) tag(`post:${body.slug}`);
+  // Route the invalidation by document type: post-ish types share the
+  // `post` tag, questions have their own so we don't nuke article caches
+  // when only the Q&A changes.
+  if (body._type === 'question') {
+    tag('question');
+    if (body.slug) tag(`question:${body.slug}`);
+  } else {
+    tag('post');
+    if (body.pillar) tag(`pillar:${body.pillar}`);
+    if (body.slug) tag(`post:${body.slug}`);
+  }
 
   return Response.json({ ok: true, revalidated });
 }

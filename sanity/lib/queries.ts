@@ -130,6 +130,54 @@ export const LATEST_POSTS_HOME_QUERY = defineQuery(`
   }
 `);
 
+// ----- Q&A -----
+
+const QUESTION_FIELDS = /* groq */ `
+  _id,
+  title,
+  "slug": slug.current,
+  pillar,
+  featured,
+  askedAt
+`;
+
+/** All published questions, featured first then newest-asked. */
+export const QUESTIONS_QUERY = defineQuery(`
+  *[
+    _type == "question"
+    && defined(slug.current)
+    && !(_id in path("drafts.**"))
+  ] | order(featured desc, askedAt desc) {
+    ${QUESTION_FIELDS}
+  }
+`);
+
+/** Single question with both-locale answers, looked up by slug. */
+export const QUESTION_BY_SLUG_QUERY = defineQuery(`
+  *[
+    _type == "question"
+    && slug.current == $slug
+    && !(_id in path("drafts.**"))
+  ][0] {
+    ${QUESTION_FIELDS},
+    answerJa,
+    answerKo
+  }
+`);
+
+/** Slugs of all published questions (for generateStaticParams and sitemap). */
+export const ALL_QUESTION_SLUGS_QUERY = defineQuery(`
+  *[
+    _type == "question"
+    && defined(slug.current)
+    && !(_id in path("drafts.**"))
+  ]{
+    "slug": slug.current,
+    _updatedAt,
+    askedAt
+  }
+`);
+
 /** Slugs of all published posts (for generateStaticParams and sitemap). */
 export const ALL_POST_SLUGS_QUERY = defineQuery(`
   *[
@@ -197,4 +245,26 @@ export type LatestPostsByPillar = {
   life: PostCard[];
   study: PostCard[];
   trip: PostCard[];
+};
+
+export type QuestionPillar = Pillar | 'other';
+
+export type QuestionCard = {
+  _id: string;
+  title: Bilingual;
+  slug: string;
+  pillar: QuestionPillar;
+  featured?: boolean;
+  askedAt: string;
+};
+
+export type QuestionDetail = QuestionCard & {
+  answerJa?: unknown[];
+  answerKo?: unknown[];
+};
+
+export type QuestionSlug = {
+  slug: string;
+  askedAt?: string;
+  _updatedAt?: string;
 };
