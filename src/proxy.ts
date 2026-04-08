@@ -1,10 +1,10 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 
-// Cloudflare Workers (via @opennextjs/cloudflare) requires Edge runtime middleware.
-// Next.js 16's new `proxy.ts` only runs on Node.js, so we keep using the legacy
-// `middleware.ts` filename which still runs on Edge. The file must live at the
-// same level as `app/` — with `src/app/` that means `src/middleware.ts`.
+// Next.js 16 introduced `proxy.ts` as the new file convention (renamed from
+// `middleware.ts`). Vercel runs this on Node.js runtime by default, which is
+// what we want for Sanity client + next-intl. Lives at `src/proxy.ts` because
+// our app code lives under `src/app/`.
 export default createMiddleware(routing);
 
 export const config = {
