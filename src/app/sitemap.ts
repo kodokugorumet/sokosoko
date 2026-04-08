@@ -1,9 +1,13 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
+import { sanityFetch } from '../../sanity/lib/fetch';
+import { ALL_POST_SLUGS_QUERY, type PostSlug, type Pillar } from '../../sanity/lib/queries';
 
-// Static routes that exist for every locale. Phase C will extend this with
-// dynamic Sanity post slugs (one entry per published post per locale).
+// Static paths that always exist for every locale.
 const STATIC_PATHS = ['', '/about', '/contact', '/qa'] as const;
+// Pillar index pages — these exist regardless of post count; empty-state
+// handles the "no posts yet" case but the URL is still canonical.
+const PILLAR_PATHS: ReadonlyArray<`/${Pillar}`> = ['/life', '/study', '/trip'];
 
 const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
@@ -14,17 +18,56 @@ function urlFor(locale: string, path: string) {
   return `${baseUrl}/${locale}${path}`;
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+function alternatesFor(path: string) {
+  return {
+    languages: Object.fromEntries(routing.locales.map((l) => [l, urlFor(l, path)])),
+  };
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  return STATIC_PATHS.flatMap((path) =>
+
+  // One Sanity fetch for every published post. Tagged `post` so the
+  // /api/revalidate webhook refreshes sitemap.xml alongside page routes.
+  const posts = await sanityFetch<PostSlug[]>({
+    query: ALL_POST_SLUGS_QUERY,
+    tags: ['post', 'sitemap'],
+  });
+
+  const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.flatMap((path) =>
     routing.locales.map((locale) => ({
       url: urlFor(locale, path),
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: path === '' ? 1 : 0.7,
-      alternates: {
-        languages: Object.fromEntries(routing.locales.map((l) => [l, urlFor(l, path)])),
-      },
+      alternates: alternatesFor(path),
     })),
   );
+
+  const pillarEntries: MetadataRoute.Sitemap = PILLAR_PATHS.flatMap((path) =>
+    routing.locales.map((locale) => ({
+      url: urlFor(locale, path),
+      lastModified: now,
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+      alternates: alternatesFor(path),
+    })),
+  );
+
+  const postEntries: MetadataRoute.Sitemap = posts.flatMap((post) => {
+    // Drop posts whose category has no pillar (should be impossible given
+    // the schema's required radio, but better than emitting a bad URL).
+    if (!post.pillar || !post.slug) return [];
+    const path = `/${post.pillar}/${post.slug}`;
+    const lastMod = post._updatedAt ?? post.publishedAt;
+    return routing.locales.map((locale) => ({
+      url: urlFor(locale, path),
+      lastModified: lastMod ? new Date(lastMod) : now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: alternatesFor(path),
+    }));
+  });
+
+  return [...staticEntries, ...pillarEntries, ...postEntries];
 }

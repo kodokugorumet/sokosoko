@@ -114,7 +114,7 @@ export const LATEST_POSTS_HOME_QUERY = defineQuery(`
   }
 `);
 
-/** Slugs of all published posts (for generateStaticParams). */
+/** Slugs of all published posts (for generateStaticParams and sitemap). */
 export const ALL_POST_SLUGS_QUERY = defineQuery(`
   *[
     _type == "post"
@@ -122,7 +122,9 @@ export const ALL_POST_SLUGS_QUERY = defineQuery(`
     && !(_id in path("drafts.**"))
   ]{
     "slug": slug.current,
-    "pillar": category->pillar
+    "pillar": category->pillar,
+    publishedAt,
+    _updatedAt
   }
 `);
 
@@ -171,6 +173,8 @@ export type Category = CategoryRef & {
 export type PostSlug = {
   slug: string;
   pillar: Pillar;
+  publishedAt?: string;
+  _updatedAt?: string;
 };
 
 export type LatestPostsByPillar = {
