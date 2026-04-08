@@ -11,19 +11,25 @@
 
 ## 기술 스택 / Tech stack
 
-| 영역 / 領域        | 채용 / 採用                                   |
-| ------------------ | --------------------------------------------- |
-| Framework          | **Next.js 16** (App Router, React 19)         |
-| Language / Styling | TypeScript 5, Tailwind CSS v4                 |
-| i18n               | **next-intl v4** (`ja` / `ko`, 일본어 우선)   |
-| CMS                | **Sanity v5** (`/studio` 임베디드 / 埋め込み) |
-| Hosting            | Cloudflare Pages (무료 / 無料 `*.pages.dev`)  |
-| SNS auto-sync      | X API (free), Bluesky, Instagram Graph, LINE  |
-| Tooling            | pnpm, ESLint, Prettier, Husky, Commitlint     |
+| 영역 / 領域        | 채용 / 採用                                                      |
+| ------------------ | ---------------------------------------------------------------- |
+| Framework          | **Next.js 16** (App Router, React 19, Turbopack)                 |
+| Language / Styling | TypeScript 5, Tailwind CSS v4                                    |
+| i18n               | **next-intl v4** (`ja` / `ko`, 일본어 우선 / 日本語優先)         |
+| CMS                | **Sanity v5** (스튜디오는 별도 호스팅 / Studio は別ホスティング) |
+| Hosting (Web)      | **Cloudflare Workers** + `@opennextjs/cloudflare` (무료 / 無料)  |
+| Hosting (Studio)   | **Sanity 호스팅** `*.sanity.studio` (무료 / 無料)                |
+| SNS auto-sync      | X API (free), Bluesky, Instagram Graph, LINE                     |
+| Tooling            | pnpm, ESLint, Prettier, Husky, lint-staged, Commitlint           |
 
-> **Next.js 16 주의 / 注意:** 기존 `middleware.ts` 파일 컨벤션이 `proxy.ts` 로 이름이 바뀌었습니다.
-> 旧 `middleware.ts` ファイル規約は `proxy.ts` にリネームされました。
-> 프로젝트 루트의 `proxy.ts` 를 확인하세요. / プロジェクトルートの `proxy.ts` を参照。
+> **Edge runtime 주의 / 注意**
+> Next.js 16 의 `proxy.ts` 는 Node.js 런타임 전용이라 CF Workers (Edge) 에서 동작하지 않습니다.
+> Next.js 16 の `proxy.ts` は Node.js ランタイム専用なので、CF Workers (Edge) では動作しません。
+> 따라서 next-intl 미들웨어는 레거시 파일명인 **`src/middleware.ts`** 로 유지합니다.
+> したがって next-intl ミドルウェアはレガシーファイル名 **`src/middleware.ts`** で維持します。
+
+호스팅 결정의 상세한 근거는 [`docs/adr/0002-hosting-cloudflare-workers.md`](./docs/adr/0002-hosting-cloudflare-workers.md) 를 참고하세요.
+배포 절차는 [`docs/runbooks/cloudflare-deploy.md`](./docs/runbooks/cloudflare-deploy.md) 를 참고하세요.
 
 ---
 
@@ -41,21 +47,29 @@ pnpm dev
 ```
 
 - 사이트 / Site: http://localhost:3000
-- Sanity Studio (임베디드 / 埋め込み): http://localhost:3000/studio
+- Sanity Studio: 별도 호스팅 → `https://sokosoko.sanity.studio` (배포 후)
+  - 로컬 작업: `pnpm sanity dev` → http://localhost:3333
 
 ---
 
 ## 스크립트 / Scripts
 
-| Command             | 설명 / 説明                                 |
-| ------------------- | ------------------------------------------- |
-| `pnpm dev`          | 개발 서버 시작 / Next dev サーバー起動      |
-| `pnpm build`        | 프로덕션 빌드 / プロダクションビルド        |
-| `pnpm start`        | 프로덕션 서버 / プロダクションサーバー      |
-| `pnpm lint`         | ESLint 검사 / ESLint チェック               |
-| `pnpm typecheck`    | 타입 검사 / 型チェック (`tsc --noEmit`)     |
-| `pnpm format`       | Prettier 자동 정렬 / Prettier 整形          |
-| `pnpm format:check` | Prettier 검사 (CI) / Prettier チェック (CI) |
+| Command               | 설명 / 説明                                                            |
+| --------------------- | ---------------------------------------------------------------------- |
+| `pnpm dev`            | 개발 서버 시작 / Next dev サーバー起動                                 |
+| `pnpm build`          | 프로덕션 빌드 (일반 Next) / プロダクションビルド                       |
+| `pnpm start`          | 프로덕션 서버 / プロダクションサーバー                                 |
+| `pnpm lint`           | ESLint 검사 / ESLint チェック                                          |
+| `pnpm typecheck`      | 타입 검사 / 型チェック (`tsc --noEmit`)                                |
+| `pnpm format`         | Prettier 자동 정렬 / Prettier 整形                                     |
+| `pnpm format:check`   | Prettier 검사 (CI) / Prettier チェック (CI)                            |
+| `pnpm preview`        | OpenNext 빌드 + 로컬 Workers 미리보기 / OpenNext build + local preview |
+| `pnpm deploy`         | OpenNext 빌드 + CF Workers 배포 / OpenNext build + deploy              |
+| `pnpm cf-typegen`     | `wrangler types` 로 `cloudflare-env.d.ts` 재생성                       |
+| `pnpm sanity`         | Sanity CLI 진입점 / Sanity CLI                                         |
+| `pnpm sanity:typegen` | Sanity 스키마 → TS 타입 생성                                           |
+
+> **Windows 주의 / 注意**: `pnpm preview` / `pnpm deploy` 는 OpenNext 의 symlink 권한 문제로 Windows 에서 실패합니다. WSL 또는 CI (Linux) 에서 실행하세요. 일반 `pnpm dev` / `pnpm build` 는 Windows 에서 정상 동작합니다.
 
 ---
 
@@ -67,30 +81,56 @@ src/
     layout.tsx              # 루트 레이아웃 / ルートレイアウト (html/body/fonts)
     [locale]/               # 다국어 라우트 / ローカライズルート (ja / ko)
       layout.tsx            # NextIntl provider + Header/Footer
-      page.tsx              # 홈 / ホーム (3-pillar カード)
-    studio/[[...tool]]/     # 임베디드 Sanity Studio / 埋め込み
-  components/layout/        # Header, Footer, LocaleSwitcher
+      page.tsx              # 홈 / ホーム (Hero + 3-pillar 카드)
+  components/layout/        # Header, HeaderActions(MENU drawer), Footer, LocaleSwitcher
   i18n/                     # routing, request, navigation
   messages/                 # ja.json, ko.json (UI 문자열 / UI 文字列)
-  lib/sanity/               # client, image, env
-sanity/schemas/             # post, author, category, tag
-proxy.ts                    # next-intl 미들웨어 / ミドルウェア (Next 16)
+  middleware.ts             # next-intl 미들웨어 (Edge runtime, 레거시 파일명)
+sanity/
+  env.ts                    # projectId, dataset, apiVersion
+  lib/                      # client, image, live
+  schemas/                  # post, author, category, tag, bilingualString
+  structure.ts              # Studio 데스크 구조
 sanity.config.ts            # Sanity Studio 설정 / 設定
-docs/                       # 계획, ADR, 운영 가이드 / プラン・ADR・runbook
+sanity.cli.ts               # Sanity CLI 설정
+wrangler.jsonc              # Cloudflare Workers 설정
+open-next.config.ts         # OpenNext 어댑터 설정
+public/
+  _headers                  # CF Workers static assets 캐시 헤더
+  brand/                    # 로고·마스코트 이미지
+docs/
+  README.md                 # 문서 인덱스 (작성 예정)
+  plan/                     # 제작 계획 (주제별 7개 파일)
+  adr/                      # Architecture Decision Records
+  runbooks/                 # 운영 가이드 (배포 등)
 ```
+
+---
+
+## 문서 / Documentation
+
+| 위치                                                                                           | 내용                                            |
+| ---------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [`docs/plan/`](./docs/plan/)                                                                   | 소코소코 제작 계획 (7개 주제별 문서)            |
+| [`docs/plan/00-overview.md`](./docs/plan/00-overview.md)                                       | 한 줄 요약, 핵심 의사결정                       |
+| [`docs/plan/01-information-architecture.md`](./docs/plan/01-information-architecture.md)       | 사이트맵, 메뉴/푸터 구조                        |
+| [`docs/plan/02-roadmap.md`](./docs/plan/02-roadmap.md)                                         | Phase 0 ~ 3 단계별 로드맵                       |
+| [`docs/plan/03-ui-components.md`](./docs/plan/03-ui-components.md)                             | 헤더/푸터/메인/블로그/카드/Q&A 명세             |
+| [`docs/plan/04-tech-stack.md`](./docs/plan/04-tech-stack.md)                                   | 채택 스택, DB 필드 요건                         |
+| [`docs/plan/05-content-and-ux.md`](./docs/plan/05-content-and-ux.md)                           | UI/UX 원칙, 콘텐츠 전략                         |
+| [`docs/plan/06-operations.md`](./docs/plan/06-operations.md)                                   | 역할, 리스크, 액션, KPI                         |
+| [`docs/adr/0001-tech-stack.md`](./docs/adr/0001-tech-stack.md)                                 | ADR-0001: 초기 기술 스택 선정                   |
+| [`docs/adr/0002-hosting-cloudflare-workers.md`](./docs/adr/0002-hosting-cloudflare-workers.md) | ADR-0002: CF Pages → CF Workers + Sanity 호스팅 |
+| [`docs/runbooks/cloudflare-deploy.md`](./docs/runbooks/cloudflare-deploy.md)                   | Cloudflare Workers 배포 절차                    |
 
 ---
 
 ## 기여하기 / Contributing
 
-자세한 내용은 [CONTRIBUTING.md](./CONTRIBUTING.md) 를 참고하세요.
-詳細は [CONTRIBUTING.md](./CONTRIBUTING.md) を参照。
-
-**TL;DR**
-
 - `main` 에서 브랜치를 따고 PR을 엽니다 / `main` から branch を切って PR を出す
-- CI (`lint` / `typecheck` / `build`) 통과 필수 / CI 通過必須
+- CI (`format:check` / `lint` / `typecheck` / `build`) 통과 필수 / CI 通過必須
 - 커밋은 Conventional Commits / コミットは Conventional Commits
+- pre-commit hook 이 lint-staged 로 자동 정렬·검사
 
 ---
 
