@@ -1,6 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
+
+// Client-only mount check via useSyncExternalStore — returns false on SSR,
+// true after hydration on the client. Avoids the `setState in effect` lint
+// rule and produces correct hydration output.
+const subscribe = () => () => {};
+const useIsClient = () =>
+  useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { LocaleSwitcher } from './LocaleSwitcher';
@@ -38,29 +50,14 @@ export function HeaderActions() {
 
   const close = () => setOpen(false);
 
-  return (
-    <>
-      <div className="flex items-center gap-2">
-        <LocaleSwitcher />
-        <button
-          type="button"
-          onClick={() => alert(t('loginComingSoon'))}
-          className="hand-box rounded-md px-3 py-1 text-xs font-medium tracking-wide hover:bg-[var(--accent-soft)]"
-          aria-label={t('login')}
-        >
-          {t('login')}
-        </button>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-expanded={open}
-          aria-controls="site-menu-drawer"
-          className="hand-box rounded-md px-3 py-1 text-xs font-medium tracking-wide hover:bg-[var(--accent-soft)]"
-        >
-          {t('menu')}
-        </button>
-      </div>
+  // The header has `backdrop-blur`, which makes it the containing block for any
+  // descendant `position: fixed` element (per CSS spec on transform/filter/backdrop-filter).
+  // Rendering the drawer + backdrop via a portal to <body> escapes that and keeps
+  // them anchored to the viewport.
+  const isClient = useIsClient();
 
+  const overlay = (
+    <>
       {/* Backdrop */}
       <div
         onClick={close}
@@ -185,6 +182,33 @@ export function HeaderActions() {
           </div>
         </div>
       </aside>
+    </>
+  );
+
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <LocaleSwitcher />
+        <button
+          type="button"
+          onClick={() => alert(t('loginComingSoon'))}
+          className="hand-box rounded-md px-3 py-1 text-xs font-medium tracking-wide hover:bg-[var(--accent-soft)]"
+          aria-label={t('login')}
+        >
+          {t('login')}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-expanded={open}
+          aria-controls="site-menu-drawer"
+          className="hand-box rounded-md px-3 py-1 text-xs font-medium tracking-wide hover:bg-[var(--accent-soft)]"
+        >
+          {t('menu')}
+        </button>
+      </div>
+
+      {isClient ? createPortal(overlay, document.body) : null}
     </>
   );
 }
