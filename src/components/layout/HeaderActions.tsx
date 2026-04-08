@@ -138,6 +138,14 @@ export function HeaderActions() {
           >
             ● {tMenu('qa')}
           </Link>
+
+          <Link
+            href="/about"
+            onClick={close}
+            className="mt-2 py-2 text-base font-medium hover:text-[var(--accent)]"
+          >
+            ● {tMenu('about')}
+          </Link>
         </nav>
 
         <div className="border-t border-zinc-200 px-6 py-5 dark:border-zinc-800">

@@ -23,6 +23,7 @@
     "topPage": "Top page",
     "blog": "Blog",
     "qa": "Q&A",
+    "about": "About",
     "privacyPolicy": "privacy policy",
     "termsOfUse": "Terms of use",
     "contact": "Contact",
@@ -43,7 +44,114 @@
     },
     "comingSoon": "近日公開"
   },
+  "About": {
+    "metaTitle": "About",
+    "metaDescription": "釜山を拠点にした日韓コミュニティ「いもじょも」の紹介。日本人に向けて、等身大の釜山を日本語と韓国語でお届けします。",
+    "title": "About",
+    "subtitle": "釜山暮らし、ありのまま。",
+    "intro": {
+      "heading": "私たちについて",
+      "body": "「いもじょも」は、釜山に暮らす・学ぶ・旅する日本人のための、等身大の情報メディアです。旅行ガイドには載らない日常の小さな発見や、留学・ワーホリの準備、住んでみて初めて分かる生活の知恵を、日本語と韓国語の両方でお届けしています。観光地としての釜山ではなく、「住んでいる人の視点」を大切にしています。"
+    },
+    "philosophy": {
+      "heading": "大切にしていること",
+      "items": [
+        {
+          "title": "健全な関係性",
+          "body": "語学交流やオフ会でありがちな出会い目的の場にならないよう、学びと暮らしを軸にした健全なコミュニティを目指しています。"
+        },
+        {
+          "title": "等身大の情報",
+          "body": "広告やタイアップではなく、実際に釜山で暮らしている運営メンバーが自分の言葉で書いた一次情報を届けます。"
+        },
+        {
+          "title": "日韓の両言語で",
+          "body": "すべての記事を日本語と韓国語の両方で執筆。言葉の壁をできるだけ低くして、両方向に情報が流れるようにします。"
+        }
+      ]
+    },
+    "pillars": {
+      "heading": "三つの柱",
+      "life": {
+        "title": "暮らす",
+        "body": "住まい探し、病院、行政手続き、節約術など、釜山での日常生活に役立つ情報。"
+      },
+      "study": {
+        "title": "学ぶ",
+        "body": "韓国語学習、大学・語学堂、ワーキングホリデー、ビザ、就活などの学びに関する情報。"
+      },
+      "trip": {
+        "title": "旅する",
+        "body": "定番の観光地から、地元の人だけが知る穴場まで、釜山を楽しむためのヒント。"
+      }
+    },
+    "team": {
+      "heading": "運営メンバー",
+      "note": "現在、運営メンバーを少しずつ増やしています。ここに掲載されているのはコアメンバーのみで、今後随時更新予定です。",
+      "members": {
+        "lead": {
+          "name": "スタディ代表",
+          "role": "スタディ運営 / コミュニティ主宰",
+          "bio": "釜山での韓国語スタディを主宰。モイムの企画・運営を担当。"
+        },
+        "dev": {
+          "name": "開発担当",
+          "role": "ウェブサイト開発 / 運営サポート",
+          "bio": "このサイトの開発とインフラを担当しています。"
+        }
+      },
+      "comingSoon": "メンバー追加予定"
+    },
+    "cta": {
+      "heading": "お問い合わせ",
+      "body": "スタディ参加、取材、協業などのご相談は Contact ページからお気軽にどうぞ。",
+      "contactLabel": "Contact →"
+    }
+  },
+  "Contact": {
+    "metaTitle": "Contact",
+    "metaDescription": "「いもじょも」へのお問い合わせ先一覧。メール、Instagram、X、LINE、note、NAVER カフェからご連絡いただけます。",
+    "title": "Contact",
+    "subtitle": "お気軽にどうぞ。",
+    "intro": "取材、スタディ参加のご相談、記事の誤りのご指摘など、どんな内容でも歓迎しています。以下のいずれかの方法でご連絡ください。",
+    "responseNote": "返信は通常 2〜3 日以内にお送りしています。お急ぎの場合は Instagram の DM が最も早いです。",
+    "channels": {
+      "email": {
+        "label": "Email",
+        "value": "hello@example.com",
+        "description": "最も確実な連絡手段です。"
+      },
+      "instagram": {
+        "label": "Instagram",
+        "value": "@imojomo",
+        "description": "DM でのご連絡も歓迎。"
+      },
+      "x": {
+        "label": "X (Twitter)",
+        "value": "@imojomo",
+        "description": "更新情報をお届け。"
+      },
+      "line": {
+        "label": "LINE 公式",
+        "value": "@imojomo",
+        "description": "スタディ参加者向け連絡用。"
+      },
+      "note": {
+        "label": "note",
+        "value": "imojomo",
+        "description": "長文コラム・編集後記など。"
+      },
+      "naverCafe": {
+        "label": "NAVER カフェ",
+        "value": "imojomo",
+        "description": "韓国のファンの皆さまへ。"
+      }
+    },
+    "placeholder": "※ 各リンクは Phase 1 中に順次公開します。"
+  },
   "Footer": {
-    "copyright": "© {year} 釜山暮らし。いもじょも"
+    "copyright": "© {year} 釜山暮らし。いもじょも",
+    "about": "About",
+    "contact": "Contact"
   }
 }
