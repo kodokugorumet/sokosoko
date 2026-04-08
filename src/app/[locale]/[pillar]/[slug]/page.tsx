@@ -86,11 +86,44 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!isPillar(pillar)) return {};
   const post = await fetchPost(slug);
   if (!post || post.category.pillar !== pillar) return {};
-  const title = pickLocaleString(post.title, locale as Locale);
-  const description = pickLocaleString(post.excerpt, locale as Locale);
+  const loc = locale as Locale;
+  const title = pickLocaleString(post.title, loc);
+  const description = pickLocaleString(post.excerpt, loc);
+  const canonicalPath = `/${pillar}/${slug}`;
+  const canonicalUrl =
+    loc === 'ja' ? `${SITE_URL}${canonicalPath}` : `${SITE_URL}/${loc}${canonicalPath}`;
+  // Use the cover as OG/Twitter image when present; otherwise fall through
+  // to the site-wide /opengraph-image. Twitter prefers `summary_large_image`
+  // when the asset is 16:9 (we already crop to 1200x630).
+  const ogImage = post.coverImage
+    ? urlFor(post.coverImage).width(1200).height(630).fit('crop').url()
+    : undefined;
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ja: `${SITE_URL}${canonicalPath}`,
+        ko: `${SITE_URL}/ko${canonicalPath}`,
+      },
+    },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: canonicalUrl,
+      locale: loc === 'ja' ? 'ja_JP' : 'ko_KR',
+      publishedTime: post.publishedAt,
+      authors: [pickLocaleString(post.author.name, loc)],
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
   };
 }
 
@@ -107,6 +140,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
   const t = await getTranslations('Article');
   const tPillar = await getTranslations('Pillar');
+  const tNav = await getTranslations('Nav');
   const loc = locale as Locale;
 
   const title = pickLocaleString(post.title, loc);
@@ -132,7 +166,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
   // Schema.org Article — gives Google a precise understanding of the page.
   // Image + author + dates are the fields Search Console actually validates.
-  const jsonLd = {
+  const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: title,
@@ -151,13 +185,36 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
     articleSection: categoryTitle,
   };
 
+  // BreadcrumbList — Home › Pillar › Article. Google uses this to render
+  // the breadcrumb trail in search results instead of the raw URL.
+  const pillarUrl = loc === 'ja' ? `${SITE_URL}/${pillar}` : `${SITE_URL}/${loc}/${pillar}`;
+  const homeUrl = loc === 'ja' ? `${SITE_URL}/` : `${SITE_URL}/${loc}`;
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: tNav('home'), item: homeUrl },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: tPillar(`${pillar}.title`),
+        item: pillarUrl,
+      },
+      { '@type': 'ListItem', position: 3, name: title, item: canonicalUrl },
+    ],
+  };
+
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-10 sm:py-16">
       {/* Structured data for search engines. Renders as a plain <script>
           in the DOM; React 19 allows this inline without dangerouslySet. */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       {/* Breadcrumb / category chip */}
