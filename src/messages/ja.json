@@ -40,7 +40,13 @@
     "fallbackBanner": "この記事は日本語訳がまだ準備中のため、韓国語原文を表示しています。",
     "publishedOn": "公開日",
     "writtenBy": "著者",
-    "relatedHeading": "関連する記事"
+    "relatedHeading": "関連する記事",
+    "readingTime": "約 {minutes} 分で読めます",
+    "shareHeading": "シェアする",
+    "shareOnX": "X でシェア",
+    "shareOnLine": "LINE でシェア",
+    "shareCopy": "リンクをコピー",
+    "shareCopied": "コピーしました"
   },
   "Pillar": {
     "life": {
