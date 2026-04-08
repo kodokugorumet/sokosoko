@@ -35,6 +35,12 @@
     "ja": "日本語",
     "ko": "한국어"
   },
+  "Article": {
+    "backToPillar": "← {pillar} に戻る",
+    "fallbackBanner": "この記事は日本語訳がまだ準備中のため、韓国語原文を表示しています。",
+    "publishedOn": "公開日",
+    "writtenBy": "著者"
+  },
   "Pillar": {
     "life": {
       "title": "釜山ライフ",
