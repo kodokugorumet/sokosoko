@@ -78,6 +78,42 @@ export const CATEGORIES_BY_PILLAR_QUERY = defineQuery(`
   }
 `);
 
+/**
+ * Home page latest posts, grouped by pillar.
+ *
+ * Returns the 2 newest published posts per pillar in a single round-trip,
+ * so the home page can render teaser links and compute the "New!" badge
+ * without three separate fetches.
+ */
+export const LATEST_POSTS_HOME_QUERY = defineQuery(`
+  {
+    "life": *[
+      _type == "post"
+      && defined(slug.current)
+      && !(_id in path("drafts.**"))
+      && category->pillar == "life"
+    ] | order(publishedAt desc)[0...2] {
+      ${POST_FIELDS}
+    },
+    "study": *[
+      _type == "post"
+      && defined(slug.current)
+      && !(_id in path("drafts.**"))
+      && category->pillar == "study"
+    ] | order(publishedAt desc)[0...2] {
+      ${POST_FIELDS}
+    },
+    "trip": *[
+      _type == "post"
+      && defined(slug.current)
+      && !(_id in path("drafts.**"))
+      && category->pillar == "trip"
+    ] | order(publishedAt desc)[0...2] {
+      ${POST_FIELDS}
+    }
+  }
+`);
+
 /** Slugs of all published posts (for generateStaticParams). */
 export const ALL_POST_SLUGS_QUERY = defineQuery(`
   *[
@@ -135,4 +171,10 @@ export type Category = CategoryRef & {
 export type PostSlug = {
   slug: string;
   pillar: Pillar;
+};
+
+export type LatestPostsByPillar = {
+  life: PostCard[];
+  study: PostCard[];
+  trip: PostCard[];
 };
