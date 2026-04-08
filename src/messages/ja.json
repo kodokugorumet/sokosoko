@@ -39,7 +39,8 @@
     "backToPillar": "← {pillar} に戻る",
     "fallbackBanner": "この記事は日本語訳がまだ準備中のため、韓国語原文を表示しています。",
     "publishedOn": "公開日",
-    "writtenBy": "著者"
+    "writtenBy": "著者",
+    "relatedHeading": "関連する記事"
   },
   "Pillar": {
     "life": {
