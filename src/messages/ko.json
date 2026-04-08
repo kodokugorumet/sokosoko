@@ -36,13 +36,18 @@
     "ko": "한국어"
   },
   "Home": {
-    "newLabel": "New?",
+    "newLabel": "New!",
     "pillars": {
       "life": "부산 라이프",
       "study": "유학 생활·준비",
       "trip": "여행"
     },
-    "comingSoon": "곧 공개됩니다"
+    "comingSoon": "곧 공개됩니다",
+    "cta": {
+      "heading": "혼자가 아니라, 함께.",
+      "body": "「이모저모」는 정보 사이트인 동시에, 일본어를 배우고 싶은 한국인을 중심으로 일부 일본인도 함께 참여하는 작은 오프라인 스터디 모임이기도 합니다. 한국인 운영자가 주최하며, 문화 교류와 느슨한 연결을 소중히 여깁니다. 스터디 참여나 운영진 소개는 About 페이지에서 확인하실 수 있습니다.",
+      "button": "About 보러가기 →"
+    }
   },
   "About": {
     "metaTitle": "About",
@@ -92,7 +97,7 @@
         "lead": {
           "name": "스터디 대표",
           "role": "스터디 운영 / 커뮤니티 주최",
-          "bio": "부산에서 한국어 스터디를 주최. 모임 기획과 운영을 담당합니다."
+          "bio": "부산에서 일본어를 배우고 싶은 한국인과 일본인이 함께 모이는 일본어 스터디를 주최하는 한국인. 모임 기획과 운영을 담당합니다."
         },
         "dev": {
           "name": "개발 담당",
@@ -152,6 +157,13 @@
   "Footer": {
     "copyright": "© {year} 부산 살이. 이모저모",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "sns": {
+      "heading": "Follow us",
+      "instagram": "Instagram",
+      "x": "X (Twitter)",
+      "line": "LINE",
+      "note": "note"
+    }
   }
 }
