@@ -36,13 +36,18 @@
     "ko": "한국어"
   },
   "Home": {
-    "newLabel": "New?",
+    "newLabel": "New!",
     "pillars": {
       "life": "釜山ライフ",
       "study": "留学生活・準備",
       "trip": "旅行"
     },
-    "comingSoon": "近日公開"
+    "comingSoon": "近日公開",
+    "cta": {
+      "heading": "ひとりじゃなく、一緒に。",
+      "body": "「いもじょも」は情報サイトであると同時に、日本語を学びたい韓国の方を中心に、一部の日本人も参加する小さなオフラインスタディの集まりでもあります。韓国人の運営者が主催し、文化交流とゆるやかなつながりを大切にしています。スタディ参加や運営メンバーの紹介は About ページをご覧ください。",
+      "button": "About を見る →"
+    }
   },
   "About": {
     "metaTitle": "About",
@@ -92,7 +97,7 @@
         "lead": {
           "name": "スタディ代表",
           "role": "スタディ運営 / コミュニティ主宰",
-          "bio": "釜山での韓国語スタディを主宰。モイムの企画・運営を担当。"
+          "bio": "釜山で日本語を学びたい韓国人と日本人が集まる日本語スタディを主宰する韓国人。集まりの企画・運営を担当。"
         },
         "dev": {
           "name": "開発担当",
@@ -152,6 +157,13 @@
   "Footer": {
     "copyright": "© {year} 釜山暮らし。いもじょも",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "sns": {
+      "heading": "Follow us",
+      "instagram": "Instagram",
+      "x": "X (Twitter)",
+      "line": "LINE",
+      "note": "note"
+    }
   }
 }
