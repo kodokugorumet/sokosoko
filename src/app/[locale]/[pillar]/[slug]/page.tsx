@@ -5,14 +5,19 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { PortableTextRenderer } from '@/components/post/PortableTextRenderer';
+import { PostCard } from '@/components/post/PostCard';
 import { urlFor } from '../../../../../sanity/lib/image';
 import { sanityFetch } from '../../../../../sanity/lib/fetch';
 import {
   ALL_POST_SLUGS_QUERY,
   POST_BY_SLUG_QUERY,
+  RELATED_POSTS_QUERY,
+  type PostCard as PostCardType,
   type PostDetail,
   type PostSlug,
 } from '../../../../../sanity/lib/queries';
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
 export const revalidate = 3600;
 
@@ -68,6 +73,14 @@ async function fetchPost(slug: string) {
   });
 }
 
+async function fetchRelated(pillar: PillarSlug, slug: string) {
+  return sanityFetch<PostCardType[]>({
+    query: RELATED_POSTS_QUERY,
+    params: { pillar, slug },
+    tags: ['post', `pillar:${pillar}`],
+  });
+}
+
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale, pillar, slug } = await params;
   if (!isPillar(pillar)) return {};
@@ -86,7 +99,10 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   if (!isPillar(pillar)) notFound();
   setRequestLocale(locale);
 
-  const post = await fetchPost(slug);
+  const [post, related] = await Promise.all([
+    fetchPost(slug),
+    fetchRelated(pillar as PillarSlug, slug),
+  ]);
   if (!post || post.category.pillar !== pillar) notFound();
 
   const t = await getTranslations('Article');
@@ -105,8 +121,45 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const usedFallback = (!primaryBody || primaryBody.length === 0) && !!fallbackBody?.length;
   const body = usedFallback ? fallbackBody : primaryBody;
 
+  // Canonical article URL — default locale lives at `/`, others at `/{locale}`.
+  const canonicalPath = `/${pillar}/${slug}`;
+  const canonicalUrl =
+    loc === 'ja' ? `${SITE_URL}${canonicalPath}` : `${SITE_URL}/${loc}${canonicalPath}`;
+  const description = pickLocaleString(post.excerpt, loc);
+  const coverUrl = post.coverImage
+    ? urlFor(post.coverImage).width(1600).height(900).fit('crop').url()
+    : undefined;
+
+  // Schema.org Article — gives Google a precise understanding of the page.
+  // Image + author + dates are the fields Search Console actually validates.
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description: description || undefined,
+    image: coverUrl ? [coverUrl] : undefined,
+    datePublished: post.publishedAt,
+    author: {
+      '@type': 'Person',
+      name: authorName,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+    inLanguage: loc === 'ja' ? 'ja-JP' : 'ko-KR',
+    articleSection: categoryTitle,
+  };
+
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-10 sm:py-16">
+      {/* Structured data for search engines. Renders as a plain <script>
+          in the DOM; React 19 allows this inline without dangerouslySet. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Breadcrumb / category chip */}
       <div className="mb-6">
         <Link
@@ -158,6 +211,19 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       ) : (
         <p className="text-sm text-zinc-500">—</p>
       )}
+
+      {related.length > 0 ? (
+        <section className="mt-16 border-t border-[var(--border)] pt-10">
+          <h2 className="font-hand mb-6 text-2xl tracking-wide text-[var(--ink)]">
+            {t('relatedHeading')}
+          </h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((r) => (
+              <PostCard key={r._id} post={r} locale={loc} />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </article>
   );
 }

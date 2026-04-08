@@ -62,6 +62,22 @@ export const POST_BY_SLUG_QUERY = defineQuery(`
   }
 `);
 
+/**
+ * Related posts — the three latest posts within the same pillar,
+ * excluding the current one. Used at the bottom of article detail pages.
+ */
+export const RELATED_POSTS_QUERY = defineQuery(`
+  *[
+    _type == "post"
+    && defined(slug.current)
+    && !(_id in path("drafts.**"))
+    && category->pillar == $pillar
+    && slug.current != $slug
+  ] | order(publishedAt desc)[0...3] {
+    ${POST_FIELDS}
+  }
+`);
+
 /** Categories within a pillar, ordered by `order` field then title. */
 export const CATEGORIES_BY_PILLAR_QUERY = defineQuery(`
   *[
