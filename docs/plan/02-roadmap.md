@@ -7,7 +7,7 @@
 - [x] 일본 벤치마크 사이트 1차 확보 (studyinshizuoka, hakko-blend, lumiarch, felissimo)
 - [x] 와이어프레임 1차안 수신
 - [x] **사이트맵·정보구조 확정** ([§01](./01-information-architecture.md))
-- [x] 호스팅 결정 ([ADR-0002](../adr/0002-hosting-cloudflare-workers.md))
+- [x] 호스팅 결정 ([ADR-0003](../adr/0003-hosting-vercel.md), ADR-0002 supersede)
 - [ ] 일본인 운영진 10명 글쓴이 섭외 + 작성 가이드 초안
 - [ ] **법무 사전 검토 항목 정리**: 회원가입 약관, 개인정보처리방침 (AI 초안 → 변호사 자문)
 - [ ] 와이어프레임 v2 (모바일 + 회원 등급 마크 + 다국어 토글 + Top page CTA 추가)
@@ -59,11 +59,12 @@
 
 ### 1-6. 인프라
 
-- **Cloudflare Workers** + `@opennextjs/cloudflare` 어댑터 (무료, edge)
-- **Sanity 호스팅** Studio (`*.sanity.studio`, 무료)
-- HTTPS(SSL) 자동
-- 백업: 미니 PC 보조 백업 (이미 보유)
-- 자세한 배포 절차: [`docs/runbooks/cloudflare-deploy.md`](../runbooks/cloudflare-deploy.md)
+- **Vercel Hobby** (무료, Next.js 16 1st party 지원)
+- **임베디드 Sanity Studio** (`/studio`, 별도 배포 불필요)
+- `@vercel/og` 동적 OG 이미지 + `next/image` 자동 최적화 (무료 한도 내)
+- HTTPS(SSL) 자동, PR preview URL 자동
+- Phase 2 광고/멤버십 도입 시 **Vercel Pro ($20/월)** 로 클릭 한 번 업그레이드
+- 자세한 배포 절차: [`docs/runbooks/vercel-deploy.md`](../runbooks/vercel-deploy.md)
 
 **Phase 1 종료 조건**: 운영진 20명 내부 베타 테스트 → 글 작성·다국어·SNS 동기화·검색 노출 확인 → 정식 오픈.
 
@@ -100,7 +101,7 @@
 - AI 기반 1차 스팸·욕설 필터 + 신고 기능
 - 관리자 모니터링 대시보드 (회원 강퇴, 글 삭제)
 
-> Phase 2 시점에 Supabase (Seoul) 또는 CF D1 추가 검토 — [ADR-0002](../adr/0002-hosting-cloudflare-workers.md) 의 "Phase 2 인프라" 절 참조.
+> Phase 2 시점에 Supabase (Seoul), Vercel Postgres, Neon 등 DB 후보 검토 — [ADR-0003](../adr/0003-hosting-vercel.md) 의 "Phase 2 / Phase 3 인프라" 절 참조.
 
 ---
 

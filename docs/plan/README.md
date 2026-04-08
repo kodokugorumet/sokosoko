@@ -24,7 +24,8 @@
 | v1.0 | 2026-04-07 | PRD + 회의 녹취 기반 최초 작성                                                        |
 | v1.1 | 2026-04-07 | 와이어프레임 v1 반영, 브랜드명·카테고리 확정, 레퍼런스 4종 분석, UI/DB 명세 추가      |
 | v1.2 | 2026-04-08 | 단일 문서를 7개 파일로 분리, 호스팅 결정 변경 (CF Pages → CF Workers + Sanity 호스팅) |
+| v1.3 | 2026-04-08 | 호스팅 재결정: CF Workers → **Vercel** (Hobby → Phase 2 시 Pro), 임베디드 Studio 유지 |
 
-호스팅 결정의 상세한 근거는 [`docs/adr/0002-hosting-cloudflare-workers.md`](../adr/0002-hosting-cloudflare-workers.md) 참조.
+호스팅 결정의 상세한 근거는 [`docs/adr/0003-hosting-vercel.md`](../adr/0003-hosting-vercel.md) 참조 (ADR-0002 는 superseded).
 
-배포 절차는 [`docs/runbooks/cloudflare-deploy.md`](../runbooks/cloudflare-deploy.md) 참조.
+배포 절차는 [`docs/runbooks/vercel-deploy.md`](../runbooks/vercel-deploy.md) 참조.

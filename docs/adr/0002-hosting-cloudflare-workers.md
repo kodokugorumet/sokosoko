@@ -1,8 +1,9 @@
 # ADR-0002: 호스팅 — Cloudflare Workers + Sanity 호스팅 Studio
 
-- Status: Accepted
+- Status: **Superseded by [ADR-0003](./0003-hosting-vercel.md)**
 - Date: 2026-04-08
 - Supersedes: ADR-0001 의 "Hosting" 행 (Cloudflare Pages)
+- Superseded by: [ADR-0003](./0003-hosting-vercel.md) (2026-04-08, 같은 날 — 첫 배포 시도에서 Worker 크기 한계 등이 드러나 Vercel 로 전환)
 
 ## Context
 
