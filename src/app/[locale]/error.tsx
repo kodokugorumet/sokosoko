@@ -6,8 +6,9 @@ import { useTranslations } from 'next-intl';
 /**
  * Route-level error boundary for `/[locale]/*`. Must be a Client
  * Component per Next.js App Router rules. Rendered when a Server
- * Component throws during rendering (including Sanity fetch failures
- * after ISR expires).
+ * Component throws during rendering (including Supabase network
+ * blips and unexpected query errors not caught by the page's own
+ * .catch handlers).
  *
  * `reset()` re-runs the offending segment — handy for transient network
  * blips. We also log to the browser console so issues triaged via
