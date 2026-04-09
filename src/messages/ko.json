@@ -269,6 +269,66 @@
     "body": "일시적인 오류가 난 것 같아요. 잠시 후 다시 시도해 주세요.",
     "retry": "다시 시도"
   },
+  "Admin": {
+    "posts": {
+      "metaTitle": "게시글 목록 · 관리",
+      "heading": "게시글 목록",
+      "subtitle": "총 {count} 건",
+      "newButton": "새 글 작성",
+      "untitled": "(제목 없음)",
+      "empty": {
+        "heading": "아직 게시글이 없어요",
+        "body": "우측 상단의 「새 글 작성」에서 첫 번째 글을 써보세요."
+      },
+      "status": {
+        "draft": "초안",
+        "pending": "승인 대기",
+        "published": "공개 중",
+        "rejected": "비공개"
+      },
+      "new": {
+        "metaTitle": "새 글 작성 · 관리",
+        "heading": "새 글 작성",
+        "subtitle": "{nickname} 으로 글을 작성합니다."
+      },
+      "edit": {
+        "metaTitle": "글 편집 · 관리",
+        "heading": "글 편집",
+        "viewPublic": "공개 페이지 보기 →",
+        "lastUpdated": "최근 수정: {date}",
+        "publish": "공개하기",
+        "unpublish": "초안으로 되돌리기",
+        "delete": "삭제",
+        "deleteConfirm": "이 글을 완전히 삭제합니다. 계속할까요?"
+      },
+      "form": {
+        "boardLabel": "게시판",
+        "langTabsLabel": "언어 탭",
+        "titleLabelJa": "제목 (일본어)",
+        "titleLabelKo": "제목 (한국어)",
+        "titlePlaceholderJa": "例: 釜山で部屋を借りるときの注意点",
+        "titlePlaceholderKo": "예: 부산에서 방 구할 때 주의할 점",
+        "excerptLabel": "요약 (선택 · 검색 결과와 목록 카드에 표시)",
+        "excerptPlaceholder": "1~2줄 요약",
+        "bodyLabel": "본문",
+        "createSubmit": "초안 작성",
+        "saveSubmit": "저장",
+        "submitting": "처리 중…",
+        "error": {
+          "boardRequired": "게시판을 선택해 주세요.",
+          "titleRequired": "일본어 또는 한국어 제목을 한 개 이상 입력해 주세요.",
+          "bodyRequired": "본문을 최소 한 언어 이상 입력해 주세요.",
+          "slugCollision": "같은 이름의 글이 너무 많아요. 제목을 조금 바꿔 다시 시도해 주세요.",
+          "unknown": "저장에 실패했어요. 다시 시도해 주세요."
+        }
+      }
+    }
+  },
+  "PublicPost": {
+    "untitled": "(제목 없음)",
+    "fallbackBanner": "이 글은 한국어 번역이 아직 준비되지 않아 일본어 원문을 보여드려요.",
+    "emptyBody": "본문은 아직 준비 중이에요."
+  },
   "Auth": {
     "notConfigured": "현재 이 환경에서는 로그인 기능이 아직 설정되지 않았습니다. 운영 환경에서는 사용 가능해요.",
     "header": {

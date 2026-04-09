@@ -269,6 +269,66 @@
     "body": "一時的なエラーのようです。少し時間をおいて、もう一度お試しください。",
     "retry": "再試行する"
   },
+  "Admin": {
+    "posts": {
+      "metaTitle": "投稿一覧 · 管理",
+      "heading": "投稿一覧",
+      "subtitle": "全 {count} 件",
+      "newButton": "新規投稿",
+      "untitled": "(無題)",
+      "empty": {
+        "heading": "まだ投稿がありません",
+        "body": "右上の「新規投稿」から最初の記事を書いてみましょう。"
+      },
+      "status": {
+        "draft": "下書き",
+        "pending": "承認待ち",
+        "published": "公開中",
+        "rejected": "非公開"
+      },
+      "new": {
+        "metaTitle": "新規投稿 · 管理",
+        "heading": "新規投稿",
+        "subtitle": "{nickname} として投稿します。"
+      },
+      "edit": {
+        "metaTitle": "投稿編集 · 管理",
+        "heading": "投稿を編集",
+        "viewPublic": "公開ページを見る →",
+        "lastUpdated": "最終更新: {date}",
+        "publish": "公開する",
+        "unpublish": "下書きに戻す",
+        "delete": "削除",
+        "deleteConfirm": "この投稿を完全に削除します。よろしいですか?"
+      },
+      "form": {
+        "boardLabel": "ボード",
+        "langTabsLabel": "言語タブ",
+        "titleLabelJa": "タイトル (日本語)",
+        "titleLabelKo": "タイトル (韓国語)",
+        "titlePlaceholderJa": "例: 釜山で部屋を借りるときの注意点",
+        "titlePlaceholderKo": "예: 부산에서 방 구할 때 주의할 점",
+        "excerptLabel": "概要 (任意・検索結果と一覧カードに表示)",
+        "excerptPlaceholder": "1〜2行の要約",
+        "bodyLabel": "本文",
+        "createSubmit": "下書きを作成",
+        "saveSubmit": "保存",
+        "submitting": "処理中…",
+        "error": {
+          "boardRequired": "ボードを選んでください。",
+          "titleRequired": "日本語または韓国語のタイトルを1つ以上入力してください。",
+          "bodyRequired": "本文を少なくとも1言語で入力してください。",
+          "slugCollision": "同じ名前の投稿が多すぎます。タイトルを少し変えてやり直してください。",
+          "unknown": "保存に失敗しました。もう一度お試しください。"
+        }
+      }
+    }
+  },
+  "PublicPost": {
+    "untitled": "(無題)",
+    "fallbackBanner": "この記事は日本語訳がまだ準備できていないため、韓国語の原文を表示しています。",
+    "emptyBody": "本文はまだ準備中です。"
+  },
   "Auth": {
     "notConfigured": "現在この環境ではログイン機能がまだ設定されていません。本番環境ではご利用いただけます。",
     "header": {
