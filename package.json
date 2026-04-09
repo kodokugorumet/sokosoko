@@ -35,7 +35,6 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.0",
     "@tiptap/core": "^3.22.3",
-    "@tiptap/extension-link": "^3.22.3",
     "@tiptap/html": "^3.22.3",
     "@tiptap/pm": "^3.22.3",
     "@tiptap/react": "^3.22.3",
