@@ -1,32 +1,25 @@
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { sanityFetch } from '../../../sanity/lib/fetch';
-import {
-  LATEST_POSTS_HOME_QUERY,
-  type LatestPostsByPillar,
-  type PostCard,
-  type Pillar,
-} from '../../../sanity/lib/queries';
+import { listLatestPerBoard, type PublicPostCardRow } from '@/lib/posts/queries';
 
 // Posts published within this window (in days) earn the "New!" sticker on
 // the pillar card. Tuned to the expected posting cadence; bump it if the
 // blog goes quiet so the badges don't all disappear.
 const NEW_WINDOW_DAYS = 14;
 
+type Pillar = 'life' | 'study' | 'trip';
 const PILLARS: ReadonlyArray<{ key: Pillar; href: `/${Pillar}` }> = [
   { key: 'life', href: '/life' },
   { key: 'study', href: '/study' },
   { key: 'trip', href: '/trip' },
 ];
 
-function pickLocaleString(value: { ja?: string; ko?: string } | undefined, locale: string): string {
-  if (!value) return '';
-  if (locale === 'ko') return value.ko ?? value.ja ?? '';
-  return value.ja ?? value.ko ?? '';
+function pickLocaleString(a: string | null, b: string | null): string {
+  return (a ?? b ?? '').trim();
 }
 
-function isWithinNewWindow(isoDate: string | undefined): boolean {
+function isWithinNewWindow(isoDate: string | null | undefined): boolean {
   if (!isoDate) return false;
   const published = new Date(isoDate).getTime();
   if (Number.isNaN(published)) return false;
@@ -41,13 +34,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations('Home');
   const tBrand = await getTranslations('Brand');
 
-  // One grouped query for all three pillars; cached via the shared `post`
-  // tag so the webhook handler can invalidate the home alongside the rest
-  // of the site when Studio publishes a new post.
-  const latest = await sanityFetch<LatestPostsByPillar>({
-    query: LATEST_POSTS_HOME_QUERY,
-    tags: ['post', 'home'],
-    fallback: { life: [], study: [], trip: [] },
+  // Grouped query across all three pillars in a single Postgres round-trip.
+  // Returns empty arrays for boards with no published posts, so the page
+  // always renders the full pillar grid.
+  const latest = await listLatestPerBoard(['life', 'study', 'trip'], 3).catch((err) => {
+    console.error('[HomePage] listLatestPerBoard failed', err);
+    return { life: [], study: [], trip: [] } as Record<string, PublicPostCardRow[]>;
   });
 
   return (
@@ -75,8 +67,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section className="mb-20">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {PILLARS.map((p) => {
-            const posts: PostCard[] = latest[p.key] ?? [];
-            const hasNew = isWithinNewWindow(posts[0]?.publishedAt);
+            const posts = latest[p.key] ?? [];
+            const hasNew = isWithinNewWindow(posts[0]?.published_at);
             return (
               <Link
                 key={p.key}
@@ -96,11 +88,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </h2>
                 <ul className="mt-3 flex flex-1 flex-col gap-2 overflow-hidden text-sm text-zinc-700 dark:text-zinc-300">
                   {posts.length > 0 ? (
-                    posts.map((post) => (
-                      <li key={post._id} className="line-clamp-2 leading-snug">
-                        · {pickLocaleString(post.title, locale)}
-                      </li>
-                    ))
+                    posts.slice(0, 2).map((post) => {
+                      const title =
+                        locale === 'ja'
+                          ? pickLocaleString(post.title_ja, post.title_ko)
+                          : pickLocaleString(post.title_ko, post.title_ja);
+                      return (
+                        <li key={post.id} className="line-clamp-2 leading-snug">
+                          · {title}
+                        </li>
+                      );
+                    })
                   ) : (
                     <li className="text-xs text-zinc-400">{t('noPostsYet')}</li>
                   )}

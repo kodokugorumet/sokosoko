@@ -8,16 +8,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        // /studio is the embedded Sanity admin — should never be indexed.
         // /search produces user-driven result pages that have no canonical
         // value and would burn crawl budget on duplicate listings.
         // /login, /onboarding, /auth/* are auth flow pages — no SEO value
         // and personalised state, so keep crawlers off them.
         // /admin/* is operator-only; RLS blocks anonymous reads anyway
         // but it's still better to keep it out of the crawl graph.
+        // /p/* is the legacy Supabase interim URL that 308-redirects to
+        // the pretty `/[board]/[slug]` form; Google handles redirects
+        // fine but explicitly disallowing keeps it out of sitemap noise.
         disallow: [
-          '/studio',
-          '/api/',
           '/auth/',
           '/login',
           '/*/login',
@@ -29,6 +29,8 @@ export default function robots(): MetadataRoute.Robots {
           '/*/admin/',
           '/search',
           '/*/search',
+          '/p/',
+          '/*/p/',
         ],
       },
     ],

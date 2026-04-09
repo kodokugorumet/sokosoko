@@ -13,8 +13,6 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,mjs}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,mjs}\"",
-    "sanity": "sanity",
-    "sanity:typegen": "sanity schema extract && sanity typegen generate",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -28,10 +26,6 @@
   },
   "dependencies": {
     "@next/third-parties": "^16.2.3",
-    "@portabletext/react": "^6.0.3",
-    "@sanity/image-url": "2",
-    "@sanity/vision": "5",
-    "@sanity/webhook": "^4.0.4",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.0",
     "@tiptap/core": "^3.22.3",
@@ -41,11 +35,8 @@
     "@tiptap/starter-kit": "^3.22.3",
     "next": "16.2.3",
     "next-intl": "^4.9.0",
-    "next-sanity": "12",
     "react": "19.2.5",
-    "react-dom": "19.2.5",
-    "sanity": "5",
-    "styled-components": "^6.3.12"
+    "react-dom": "19.2.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
