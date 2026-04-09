@@ -25,6 +25,13 @@ type Props = {
   targetId: string;
   /** Absolute site path the server action should revalidate after mutating. */
   revalidatePathHint: string;
+  /**
+   * Visual density. `full` (default) is the top-of-page comment section
+   * with a big handwritten heading; `compact` is for threads nested
+   * under a parent item (e.g. per-answer replies on /qa/[slug]) where
+   * the page header hierarchy should not be disturbed.
+   */
+  variant?: 'full' | 'compact';
 };
 
 const ROLE_BADGE: Record<string, string> = {
@@ -34,7 +41,12 @@ const ROLE_BADGE: Record<string, string> = {
   member: '',
 };
 
-export async function CommentThread({ targetType, targetId, revalidatePathHint }: Props) {
+export async function CommentThread({
+  targetType,
+  targetId,
+  revalidatePathHint,
+  variant = 'full',
+}: Props) {
   const t = await getTranslations('Comments');
   const [comments, user] = await Promise.all([
     listCommentsForTarget(targetType, targetId).catch((err) => {
@@ -57,14 +69,23 @@ export async function CommentThread({ targetType, targetId, revalidatePathHint }
   }
 
   const canModerate = user?.role === 'admin' || user?.role === 'operator';
+  const isCompact = variant === 'compact';
 
   return (
-    <section className="mt-10 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-      <h2 className="font-hand mb-4 text-xl tracking-wide text-[var(--ink)] sm:text-2xl">
-        {t('heading', { count: comments.length })}
-      </h2>
+    <section
+      className={isCompact ? 'mt-2' : 'mt-10 border-t border-zinc-200 pt-6 dark:border-zinc-800'}
+    >
+      {isCompact ? (
+        <h3 className="mb-3 text-xs font-medium tracking-wide text-zinc-500 uppercase">
+          {t('headingCompact', { count: comments.length })}
+        </h3>
+      ) : (
+        <h2 className="font-hand mb-4 text-xl tracking-wide text-[var(--ink)] sm:text-2xl">
+          {t('heading', { count: comments.length })}
+        </h2>
+      )}
 
-      {rootComments.length === 0 ? (
+      {rootComments.length === 0 && isCompact ? null : rootComments.length === 0 ? (
         <p className="mb-6 text-sm text-zinc-500">{t('empty')}</p>
       ) : (
         <ul className="mb-10 flex flex-col gap-4">
@@ -100,8 +121,9 @@ export async function CommentThread({ targetType, targetId, revalidatePathHint }
           targetType={targetType}
           targetId={targetId}
           revalidatePathHint={revalidatePathHint}
+          compact={isCompact}
         />
-      ) : (
+      ) : isCompact ? null : (
         <div className="hand-box rounded-md bg-[var(--accent-soft)] p-4 text-sm">
           {t('loginPrompt')}
         </div>

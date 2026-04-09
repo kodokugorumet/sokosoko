@@ -129,13 +129,24 @@ export default async function QuestionDetailPage({ params }: { params: Promise<P
         ) : (
           <ul className="mb-10 flex flex-col gap-6">
             {answers.map((a) => (
-              <li key={a.id}>
+              <li key={a.id} className="flex flex-col gap-3">
                 <AnswerItem
                   answer={a}
                   locale={loc}
                   questionSlug={slug}
                   canDelete={user?.id === a.author.id}
                 />
+                {/* Per-answer comment thread — shorter header than the
+                    question-level thread so it doesn't visually compete
+                    with the main conversation. */}
+                <div className="pl-4">
+                  <CommentThread
+                    targetType="answer"
+                    targetId={a.id}
+                    revalidatePathHint={`/qa/${slug}`}
+                    variant="compact"
+                  />
+                </div>
               </li>
             ))}
           </ul>

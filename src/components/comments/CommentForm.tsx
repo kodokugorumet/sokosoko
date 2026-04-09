@@ -18,11 +18,13 @@ type Props = {
   targetType: CommentTargetType;
   targetId: string;
   revalidatePathHint: string;
+  /** Shrinks the textarea + button for the inline per-answer variant. */
+  compact?: boolean;
 };
 
 const MAX = 2000;
 
-export function CommentForm({ targetType, targetId, revalidatePathHint }: Props) {
+export function CommentForm({ targetType, targetId, revalidatePathHint, compact = false }: Props) {
   const t = useTranslations('Comments.form');
   const [body, setBody] = useState('');
   const [pending, startTransition] = useTransition();
@@ -66,20 +68,22 @@ export function CommentForm({ targetType, targetId, revalidatePathHint }: Props)
       <input type="hidden" name="target_id" value={targetId} />
       <input type="hidden" name="revalidate_path" value={revalidatePathHint} />
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-[var(--ink)]">{t('label')}</span>
+        {!compact && <span className="text-sm font-medium text-[var(--ink)]">{t('label')}</span>}
         <textarea
           name="body"
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          rows={3}
+          rows={compact ? 2 : 3}
           maxLength={MAX}
-          placeholder={t('placeholder')}
+          placeholder={compact ? t('placeholderCompact') : t('placeholder')}
           className="hand-box rounded-md bg-[var(--background)] px-4 py-2 text-sm leading-relaxed focus:ring-2 focus:ring-[var(--accent)] focus:outline-none"
           disabled={pending}
         />
-        <span className="text-xs text-zinc-500">
-          {body.length}/{MAX}
-        </span>
+        {!compact && (
+          <span className="text-xs text-zinc-500">
+            {body.length}/{MAX}
+          </span>
+        )}
       </label>
 
       {errorMessage ? (
@@ -92,7 +96,11 @@ export function CommentForm({ targetType, targetId, revalidatePathHint }: Props)
         <button
           type="submit"
           disabled={pending || body.trim().length === 0}
-          className="rounded-md border border-[var(--border)] bg-[var(--ink)] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
+          className={
+            compact
+              ? 'rounded-md border border-[var(--border)] bg-[var(--ink)] px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60'
+              : 'rounded-md border border-[var(--border)] bg-[var(--ink)] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60'
+          }
         >
           {pending ? t('submitting') : t('submit')}
         </button>

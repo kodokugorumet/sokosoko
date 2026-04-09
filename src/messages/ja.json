@@ -344,11 +344,13 @@
   },
   "Comments": {
     "heading": "コメント ({count})",
+    "headingCompact": "返信 ({count})",
     "empty": "まだコメントがありません。最初のひとことを書いてみましょう。",
     "loginPrompt": "コメントするにはログインしてください。",
     "form": {
       "label": "コメント",
       "placeholder": "記事への感想や補足を書いてください (最大2000文字)",
+      "placeholderCompact": "返信を書く…",
       "submit": "投稿する",
       "submitting": "送信中…",
       "error": {
