@@ -54,15 +54,15 @@
 
 ## 5. 가용성 / 운영
 
-| ID         | 항목               | 목표                                     | 상태             |
-| ---------- | ------------------ | ---------------------------------------- | ---------------- |
-| NFR-OPS-01 | 가용성             | Vercel Hobby SLA (best-effort)           | ✅               |
-| NFR-OPS-02 | 배포 자동화        | git push → Vercel auto deploy            | ✅               |
-| NFR-OPS-03 | PR preview         | 모든 PR 별 preview URL                   | ✅               |
-| NFR-OPS-04 | CI                 | GitHub Actions: lint + typecheck + build | ✅               |
-| NFR-OPS-05 | 콘텐츠 무중단 갱신 | 웹훅 → ISR 태그 무효화                   | ⏳ Studio 미등록 |
-| NFR-OPS-06 | 롤백               | Vercel deployment promote                | ✅               |
-| NFR-OPS-07 | 로그/모니터링      | Vercel function logs                     | 부분             |
+| ID         | 항목               | 목표                                                              | 상태                         |
+| ---------- | ------------------ | ----------------------------------------------------------------- | ---------------------------- |
+| NFR-OPS-01 | 가용성             | Vercel Hobby SLA (best-effort)                                    | ✅                           |
+| NFR-OPS-02 | 배포 자동화        | git push → Vercel auto deploy                                     | ✅                           |
+| NFR-OPS-03 | PR preview         | 모든 PR 별 preview URL                                            | ✅                           |
+| NFR-OPS-04 | CI                 | GitHub Actions: lint + typecheck + build                          | ✅                           |
+| NFR-OPS-05 | 콘텐츠 무중단 갱신 | 웹훅 → ISR 태그 무효화 ([runbook](../runbooks/sanity-webhook.md)) | ✅ 가이드 (운영자 등록 대기) |
+| NFR-OPS-06 | 롤백               | Vercel deployment promote                                         | ✅                           |
+| NFR-OPS-07 | 로그/모니터링      | Vercel function logs                                              | 부분                         |
 
 ## 6. 유지보수성 (Maintainability)
 
