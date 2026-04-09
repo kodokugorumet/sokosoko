@@ -68,28 +68,60 @@ export async function getAdminPostById(id: string): Promise<AdminPostRow | null>
   return (data as AdminPostRow | null) ?? null;
 }
 
-/** Public detail query — joins author profile for the byline + role badge. */
+/**
+ * Public detail query. Implemented as **two sequential queries** instead
+ * of a PostgREST embedded join (`author:profiles!author_id(...)`) because
+ * the embed syntax proved flaky against our current Supabase schema —
+ * some combinations of FK hint + role + RLS reliably threw at the PostgREST
+ * layer with a schema-cache error message, which then bubbled up to the
+ * /qa/[slug] detail page as a generic "oops" via the error boundary.
+ *
+ * Two queries are ~20 ms slower than one joined query but completely
+ * eliminate the hint-parsing failure mode, and the cost is irrelevant at
+ * Phase 2 traffic levels.
+ */
 export async function getPublicPostById(id: string): Promise<PublicPostRow | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data: post, error: postError } = await supabase
     .from('posts')
     .select(
-      `id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at,
-       author:profiles!author_id (nickname, role)`,
+      'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at, author_id',
     )
     .eq('id', id)
     .eq('status', 'published')
     .maybeSingle();
-  if (error) throw error;
-  if (!data) return null;
-  // `author` comes back as an array from PostgREST joins even on a single
-  // FK — collapse to an object.
-  const row = data as unknown as AdminPostRow & {
-    author: PublicPostRow['author'] | PublicPostRow['author'][];
+  if (postError) {
+    console.error('[getPublicPostById] post query failed', { id, postError });
+    throw postError;
+  }
+  if (!post) return null;
+
+  const { data: authorRow, error: authorError } = await supabase
+    .from('profiles')
+    .select('nickname, role')
+    .eq('id', (post as { author_id: string }).author_id)
+    .maybeSingle();
+  if (authorError) {
+    console.error('[getPublicPostById] author query failed', {
+      id,
+      author_id: (post as { author_id: string }).author_id,
+      authorError,
+    });
+    throw authorError;
+  }
+  if (!authorRow) return null;
+
+  // Drop author_id from the public shape; the caller wants a nested
+  // `author` object instead. Cast widened from the select shape.
+  const { author_id: _authorId, ...rest } = post as AdminPostRow & { author_id: string };
+  void _authorId;
+  return {
+    ...(rest as AdminPostRow),
+    author: {
+      nickname: authorRow.nickname,
+      role: authorRow.role as PublicPostRow['author']['role'],
+    },
   };
-  const author = Array.isArray(row.author) ? row.author[0] : row.author;
-  if (!author) return null;
-  return { ...row, author };
 }
 
 /** List every configured board — used by the create form's board selector. */
@@ -148,95 +180,188 @@ export type AnswerRow = {
 };
 
 /**
- * Published questions, newest first. Separate from `listPostsByAuthor`
- * because the reader's Q&A index is very different from the admin's "my
- * posts" list — different columns, different ordering, different privacy.
+ * Published questions, newest first.
+ *
+ * Three sequential queries — posts → author profiles batch → answer
+ * counts batch — instead of one PostgREST embedded query, for the same
+ * reasons documented on `getPublicPostById` above. The batched follow-up
+ * queries use `.in('id', ids)` so we still only hit Postgres three times
+ * regardless of how many questions come back.
  */
 export async function listPublishedQuestions(): Promise<QuestionListRow[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data: postRows, error: postError } = await supabase
     .from('posts')
     .select(
-      `id, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, published_at, created_at,
-       author:profiles!author_id (nickname, role),
-       answers (id)`,
+      'id, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, published_at, created_at, author_id',
     )
     .eq('board_slug', 'qa')
     .eq('status', 'published')
     .order('published_at', { ascending: false })
     .limit(100);
-  if (error) throw error;
+  if (postError) {
+    console.error('[listPublishedQuestions] post query failed', postError);
+    throw postError;
+  }
 
-  // PostgREST returns joined rows as arrays even on a FK. Normalise author
-  // and count the embedded answers.
-  return (data ?? []).map((row) => {
-    const authorRaw = (row as { author: QuestionListRow['author'] | QuestionListRow['author'][] })
-      .author;
-    const author = Array.isArray(authorRaw) ? authorRaw[0] : authorRaw;
-    const answers = (row as { answers: { id: string }[] | null }).answers ?? [];
-    return {
-      id: row.id,
-      slug: row.slug,
-      title_ja: row.title_ja,
-      title_ko: row.title_ko,
-      excerpt_ja: row.excerpt_ja,
-      excerpt_ko: row.excerpt_ko,
-      published_at: row.published_at,
-      created_at: row.created_at,
-      author,
-      answer_count: answers.length,
-    };
-  });
+  const posts = (postRows ?? []) as Array<{
+    id: string;
+    slug: string;
+    title_ja: string | null;
+    title_ko: string | null;
+    excerpt_ja: string | null;
+    excerpt_ko: string | null;
+    published_at: string | null;
+    created_at: string;
+    author_id: string;
+  }>;
+  if (posts.length === 0) return [];
+
+  // Batch-fetch all referenced profiles and answer counts in parallel.
+  const authorIds = Array.from(new Set(posts.map((p) => p.author_id)));
+  const questionIds = posts.map((p) => p.id);
+
+  const [profilesRes, answersRes] = await Promise.all([
+    supabase.from('profiles').select('id, nickname, role').in('id', authorIds),
+    supabase.from('answers').select('question_id').in('question_id', questionIds),
+  ]);
+
+  if (profilesRes.error) {
+    console.error('[listPublishedQuestions] profiles batch failed', profilesRes.error);
+    throw profilesRes.error;
+  }
+  if (answersRes.error) {
+    console.error('[listPublishedQuestions] answers batch failed', answersRes.error);
+    throw answersRes.error;
+  }
+
+  const profileById = new Map(
+    (profilesRes.data ?? []).map((p) => [
+      p.id as string,
+      { nickname: p.nickname as string, role: p.role as UserRole },
+    ]),
+  );
+  const answerCountById = new Map<string, number>();
+  for (const row of answersRes.data ?? []) {
+    const qId = (row as { question_id: string }).question_id;
+    answerCountById.set(qId, (answerCountById.get(qId) ?? 0) + 1);
+  }
+
+  return posts.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title_ja: p.title_ja,
+    title_ko: p.title_ko,
+    excerpt_ja: p.excerpt_ja,
+    excerpt_ko: p.excerpt_ko,
+    published_at: p.published_at,
+    created_at: p.created_at,
+    author: profileById.get(p.author_id) ?? { nickname: '???', role: 'member' as UserRole },
+    answer_count: answerCountById.get(p.id) ?? 0,
+  }));
 }
 
 /**
- * Single published question by slug. Returns null if not found or still a
- * draft — RLS enforces the status check but we double-filter here so a
- * missing row shows up as a clean 404 rather than an RLS error.
+ * Single published question by slug. Two-step (post → author) for the
+ * same reason as `getPublicPostById` — PostgREST's embed hint was flaky.
+ * Returns null if not found or still a draft; RLS enforces the status
+ * check but we double-filter here so a missing row renders as a clean
+ * 404 instead of bubbling an RLS error up to the error boundary.
  */
 export async function getQuestionBySlug(slug: string): Promise<QuestionDetailRow | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data: post, error: postError } = await supabase
     .from('posts')
     .select(
-      `id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at,
-       author:profiles!author_id (nickname, role)`,
+      'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at, author_id',
     )
     .eq('board_slug', 'qa')
     .eq('slug', slug)
     .eq('status', 'published')
     .maybeSingle();
-  if (error) throw error;
-  if (!data) return null;
-  const row = data as unknown as AdminPostRow & {
-    author: PublicPostRow['author'] | PublicPostRow['author'][];
+  if (postError) {
+    console.error('[getQuestionBySlug] post query failed', { slug, postError });
+    throw postError;
+  }
+  if (!post) return null;
+
+  const { data: authorRow, error: authorError } = await supabase
+    .from('profiles')
+    .select('nickname, role')
+    .eq('id', (post as { author_id: string }).author_id)
+    .maybeSingle();
+  if (authorError) {
+    console.error('[getQuestionBySlug] author query failed', {
+      slug,
+      author_id: (post as { author_id: string }).author_id,
+      authorError,
+    });
+    throw authorError;
+  }
+  if (!authorRow) return null;
+
+  const { author_id: _authorId, ...rest } = post as AdminPostRow & { author_id: string };
+  void _authorId;
+  return {
+    ...(rest as AdminPostRow),
+    author: {
+      nickname: authorRow.nickname,
+      role: authorRow.role as PublicPostRow['author']['role'],
+    },
   };
-  const author = Array.isArray(row.author) ? row.author[0] : row.author;
-  if (!author) return null;
-  return { ...row, author };
 }
 
 /**
  * All answers for a question, **ordered by trust tier first** so the
  * admin / operator / verified reply rises to the top no matter when it
- * was written. Within a tier: newest helpful_count first, then oldest
+ * was written. Within a tier: highest helpful_count first, then oldest
  * created_at first so longstanding answers don't get buried under fresh
  * low-quality ones.
  *
- * The tier ordering is expressed via a `case` inside `order`, but
  * PostgREST doesn't support computed column ordering directly, so we
  * sort client-side after the fetch. Cheap — Q&A threads are tiny.
+ *
+ * Two-step (answers → profiles batch) like the other Q&A queries to
+ * avoid the embedded-FK hint syntax that was failing in production.
  */
 export async function listAnswersForQuestion(questionId: string): Promise<AnswerRow[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data: answerRows, error: answersError } = await supabase
     .from('answers')
-    .select(
-      `id, question_id, body_ja, body_ko, helpful_count, created_at,
-       author:profiles!author_id (id, nickname, role)`,
-    )
+    .select('id, question_id, body_ja, body_ko, helpful_count, created_at, author_id')
     .eq('question_id', questionId);
-  if (error) throw error;
+  if (answersError) {
+    console.error('[listAnswersForQuestion] answers query failed', { questionId, answersError });
+    throw answersError;
+  }
+
+  const answers = (answerRows ?? []) as Array<{
+    id: string;
+    question_id: string;
+    body_ja: JSONContent | null;
+    body_ko: JSONContent | null;
+    helpful_count: number;
+    created_at: string;
+    author_id: string;
+  }>;
+  if (answers.length === 0) return [];
+
+  const authorIds = Array.from(new Set(answers.map((a) => a.author_id)));
+  const { data: profileRows, error: profileError } = await supabase
+    .from('profiles')
+    .select('id, nickname, role')
+    .in('id', authorIds);
+  if (profileError) {
+    console.error('[listAnswersForQuestion] profiles batch failed', profileError);
+    throw profileError;
+  }
+
+  const profileById = new Map(
+    (profileRows ?? []).map((p) => [
+      p.id as string,
+      { id: p.id as string, nickname: p.nickname as string, role: p.role as UserRole },
+    ]),
+  );
 
   const ROLE_RANK: Record<UserRole, number> = {
     admin: 0,
@@ -245,19 +370,19 @@ export async function listAnswersForQuestion(questionId: string): Promise<Answer
     member: 3,
   };
 
-  const rows = (data ?? []).map((row) => {
-    const authorRaw = (row as { author: AnswerRow['author'] | AnswerRow['author'][] }).author;
-    const author = Array.isArray(authorRaw) ? authorRaw[0] : authorRaw;
-    return {
-      id: row.id,
-      question_id: row.question_id,
-      body_ja: row.body_ja as JSONContent | null,
-      body_ko: row.body_ko as JSONContent | null,
-      helpful_count: row.helpful_count,
-      created_at: row.created_at,
-      author,
-    };
-  });
+  const rows: AnswerRow[] = answers.map((a) => ({
+    id: a.id,
+    question_id: a.question_id,
+    body_ja: a.body_ja,
+    body_ko: a.body_ko,
+    helpful_count: a.helpful_count,
+    created_at: a.created_at,
+    author: profileById.get(a.author_id) ?? {
+      id: a.author_id,
+      nickname: '???',
+      role: 'member' as UserRole,
+    },
+  }));
 
   rows.sort((a, b) => {
     const rankDiff = ROLE_RANK[a.author.role] - ROLE_RANK[b.author.role];

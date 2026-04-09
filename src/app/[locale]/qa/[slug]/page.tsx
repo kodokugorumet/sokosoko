@@ -51,11 +51,20 @@ export default async function QuestionDetailPage({ params }: { params: Promise<P
 
   if (!isSupabaseConfigured()) notFound();
 
-  const post = await getQuestionBySlug(slug).catch(() => null);
+  const post = await getQuestionBySlug(slug).catch((err) => {
+    console.error('[QuestionDetailPage] getQuestionBySlug failed', { slug, err });
+    return null;
+  });
   if (!post) notFound();
 
   const [answers, user] = await Promise.all([
-    listAnswersForQuestion(post.id).catch(() => [] as AnswerRow[]),
+    listAnswersForQuestion(post.id).catch((err) => {
+      console.error('[QuestionDetailPage] listAnswersForQuestion failed', {
+        questionId: post.id,
+        err,
+      });
+      return [] as AnswerRow[];
+    }),
     getSessionUser(),
   ]);
 
