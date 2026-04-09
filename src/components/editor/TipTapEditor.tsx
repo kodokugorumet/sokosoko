@@ -2,9 +2,16 @@
 
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import { StarterKit } from '@tiptap/starter-kit';
-import { Link } from '@tiptap/extension-link';
 import { useEffect, useMemo } from 'react';
 import type { JSONContent } from '@tiptap/core';
+
+// NOTE: starting with @tiptap/starter-kit v3 the Link extension ships
+// inside StarterKit by default, so importing `@tiptap/extension-link`
+// here AND adding it to the extensions array (the way the v2 docs still
+// recommend) registers `link` twice and TipTap warns:
+//   "Duplicate extension names found: ['link']."
+// We keep the same Link configuration but route it through StarterKit's
+// `link` option below instead of as a standalone extension.
 
 /**
  * Thin wrapper around @tiptap/react that matches the site's hand-drawn
@@ -40,16 +47,16 @@ export function TipTapEditor({ value, onChange, placeholder, ariaLabel, name }: 
         // We own heading sizes (H1 = page title) so drop H1 entirely and
         // let H2/H3 be the only heading levels inside the body.
         heading: { levels: [2, 3] },
-      }),
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
-        HTMLAttributes: {
-          // Rendered HTML attrs applied when TipTap re-serialises for paste
-          // preview. Server-side HTML render in lib/tiptap/render.ts reuses
-          // the same extension config for consistency.
-          rel: 'noopener noreferrer',
-          target: '_blank',
+        // Configure StarterKit's bundled Link extension instead of adding
+        // a separate one (see top-of-file note about the v3 duplicate-name
+        // warning).
+        link: {
+          openOnClick: false,
+          autolink: true,
+          HTMLAttributes: {
+            rel: 'noopener noreferrer',
+            target: '_blank',
+          },
         },
       }),
     ],
