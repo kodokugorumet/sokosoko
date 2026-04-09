@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useSyncExternalStore } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 // Client-only mount check via useSyncExternalStore — returns false on SSR,
@@ -23,10 +23,19 @@ import { LocaleSwitcher } from './LocaleSwitcher';
  * The drawer absorbs all navigation + footer items so the header
  * itself stays minimal (matches the wireframe).
  */
+// Selector matching every focusable element inside the drawer. Used by the
+// focus trap to find the first/last stops and to bounce Tab off the ends.
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function HeaderActions() {
   const t = useTranslations('Header');
   const tMenu = useTranslations('Menu');
   const [open, setOpen] = useState(false);
+  // Anchor for restoring focus when the drawer closes — points to whatever
+  // element opened it (the MENU button in the normal flow).
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
 
   // Lock body scroll while drawer is open
   useEffect(() => {
@@ -46,6 +55,61 @@ export function HeaderActions() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
+  }, [open]);
+
+  // Focus trap: when the drawer opens, move focus inside it and intercept
+  // Tab so the user can't escape into the inert background. When it closes,
+  // restore focus to the trigger so screen reader / keyboard users land
+  // back where they were.
+  useEffect(() => {
+    if (!open) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    // Snapshot the trigger now so the cleanup function doesn't read a
+    // stale ref (eslint react-hooks/exhaustive-deps).
+    const trigger = triggerRef.current;
+
+    // Defer one frame so the drawer's transform is applied before we focus,
+    // otherwise some browsers refuse to focus an off-screen element.
+    const focusFirst = () => {
+      const items = drawer.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      (items[0] ?? drawer).focus();
+    };
+    const raf = requestAnimationFrame(focusFirst);
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const items = Array.from(drawer.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+      if (items.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      // Backwards from the first item → wrap to last; forwards from the
+      // last item → wrap to first. Anything outside the drawer is treated
+      // as "before first" and bounced back to the first item.
+      if (e.shiftKey) {
+        if (active === first || !drawer.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleTab);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('keydown', handleTab);
+      // Restore focus to the trigger only if the user didn't navigate
+      // away (which would have moved focus elsewhere).
+      trigger?.focus();
+    };
   }, [open]);
 
   const close = () => setOpen(false);
@@ -69,10 +133,14 @@ export function HeaderActions() {
 
       {/* Drawer */}
       <aside
+        ref={drawerRef}
         id="site-menu-drawer"
         role="dialog"
         aria-modal="true"
         aria-label={tMenu('title')}
+        // tabIndex=-1 so focus() works as a fallback when the drawer
+        // happens to contain zero focusable children.
+        tabIndex={-1}
         className={`fixed top-0 right-0 z-50 flex h-full w-full max-w-md flex-col bg-[var(--background)] shadow-2xl transition-transform duration-300 ease-out ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
@@ -208,10 +276,12 @@ export function HeaderActions() {
           {t('login')}
         </button>
         <button
+          ref={triggerRef}
           type="button"
           onClick={() => setOpen(true)}
           aria-expanded={open}
           aria-controls="site-menu-drawer"
+          aria-haspopup="dialog"
           className="hand-box rounded-md px-3 py-1 text-xs font-medium tracking-wide whitespace-nowrap hover:bg-[var(--accent-soft)]"
         >
           {t('menu')}

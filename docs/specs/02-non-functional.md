@@ -29,16 +29,16 @@
 
 ## 3. 다국어 / 접근성
 
-| ID          | 항목                                  | 목표                                   | 상태   |
-| ----------- | ------------------------------------- | -------------------------------------- | ------ |
-| NFR-I18N-01 | next-intl 기반 JA/KO 메시지 분리      | `messages/{ja,ko}.json`                | ✅     |
-| NFR-I18N-02 | locale prefix 정책                    | `as-needed` (ja default)               | ✅     |
-| NFR-I18N-03 | `<html lang>` per locale              | layout root                            | ✅     |
-| NFR-I18N-04 | 콘텐츠 fallback (양언어 미작성 시)    | 다른 언어 표시 + 안내 배너             | ✅     |
-| NFR-A11Y-01 | 모든 인터랙티브 요소 키보드 조작 가능 | `aria-label`, focus ring               | ✅     |
-| NFR-A11Y-02 | 색 대비 (WCAG AA)                     | text 4.5:1, large 3:1                  | 미측정 |
-| NFR-A11Y-03 | 헤더 드로어 포커스 트랩               | Radix/Headless 패턴 미적용 — 단순 포털 | 부분   |
-| NFR-A11Y-04 | 이미지 alt 텍스트                     | Sanity image alt 필드 사용             | ✅     |
+| ID          | 항목                                  | 목표                                    | 상태   |
+| ----------- | ------------------------------------- | --------------------------------------- | ------ |
+| NFR-I18N-01 | next-intl 기반 JA/KO 메시지 분리      | `messages/{ja,ko}.json`                 | ✅     |
+| NFR-I18N-02 | locale prefix 정책                    | `as-needed` (ja default)                | ✅     |
+| NFR-I18N-03 | `<html lang>` per locale              | layout root                             | ✅     |
+| NFR-I18N-04 | 콘텐츠 fallback (양언어 미작성 시)    | 다른 언어 표시 + 안내 배너              | ✅     |
+| NFR-A11Y-01 | 모든 인터랙티브 요소 키보드 조작 가능 | `aria-label`, focus ring                | ✅     |
+| NFR-A11Y-02 | 색 대비 (WCAG AA)                     | text 4.5:1, large 3:1                   | 미측정 |
+| NFR-A11Y-03 | 헤더 드로어 포커스 트랩 + 트리거 복귀 | 자체 구현 (Tab wrap + Escape + restore) | ✅     |
+| NFR-A11Y-04 | 이미지 alt 텍스트                     | Sanity image alt 필드 사용              | ✅     |
 
 ## 4. 보안 (Security)
 
