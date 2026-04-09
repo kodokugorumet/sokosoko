@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { SupabasePostCard } from '@/components/post/SupabasePostCard';
+import { PostCard } from '@/components/post/PostCard';
 import {
   searchPublishedPosts,
   searchPublishedQuestions,
@@ -105,7 +105,7 @@ export default async function SearchPage({
                   <ul className="grid gap-6 sm:grid-cols-2">
                     {posts.map((post) => (
                       <li key={post.id}>
-                        <SupabasePostCard post={post} locale={loc} />
+                        <PostCard post={post} locale={loc} />
                       </li>
                     ))}
                   </ul>

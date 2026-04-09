@@ -2,15 +2,11 @@ import { Link } from '@/i18n/navigation';
 import type { PublicPostCardRow, UserRole } from '@/lib/posts/queries';
 
 /**
- * Board-grid post card for the Supabase era. Replaces the old
- * `PostCard` that read from Sanity; named `SupabasePostCard` during the
- * Phase 2-F transition so the two could coexist, but once the Sanity
- * code is gone this will be renamed back to plain `PostCard` in a
- * follow-up PR.
- *
- * Hands the reader into `/[board]/[slug]` (not `/p/[id]`) because
- * slug-based URLs are nicer to share and Supabase enforces uniqueness
- * on `(board_slug, slug)` so the route is unambiguous.
+ * Board-grid post card used by every article list (home, pillar index,
+ * search results, related posts). Hands the reader into
+ * `/[board]/[slug]` because slug-based URLs are nicer to share and
+ * Supabase enforces uniqueness on `(board_slug, slug)` so the route is
+ * unambiguous.
  */
 
 const ROLE_BADGE: Record<UserRole, string> = {
@@ -35,7 +31,7 @@ function formatDate(iso: string | null, locale: Locale): string {
   });
 }
 
-export function SupabasePostCard({ post, locale }: { post: PublicPostCardRow; locale: Locale }) {
+export function PostCard({ post, locale }: { post: PublicPostCardRow; locale: Locale }) {
   const title =
     locale === 'ja'
       ? pickLocaleString(post.title_ja, post.title_ko)
