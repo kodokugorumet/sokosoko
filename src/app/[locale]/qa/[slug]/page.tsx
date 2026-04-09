@@ -10,6 +10,7 @@ import {
 import { renderTipTapHtml, isTipTapEmpty } from '@/lib/tiptap/render';
 import { getSessionUser } from '@/lib/auth/require-role';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
+import { CommentThread } from '@/components/comments/CommentThread';
 import { AnswerForm } from './AnswerForm';
 import { AnswerItem } from './AnswerItem';
 
@@ -148,6 +149,12 @@ export default async function QuestionDetailPage({ params }: { params: Promise<P
           </div>
         )}
       </section>
+
+      {/* Question-level comments live alongside answers — short
+          reactions, clarifications, thank-yous. Phase 2-E covers the
+          question target only; per-answer replies will come in a
+          follow-up so the schema and UI don't sprawl at once. */}
+      <CommentThread targetType="post" targetId={post.id} revalidatePathHint={`/qa/${slug}`} />
     </article>
   );
 }
