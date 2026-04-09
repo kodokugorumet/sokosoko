@@ -1,12 +1,11 @@
 import type { Adapter, AdapterResult, SyndicationPost } from './types';
-import { bluesky } from './bluesky';
 import { x } from './x';
 import { instagram } from './instagram';
 import { line } from './line';
 
 export type { SyndicationPost, AdapterResult } from './types';
 
-const ALL_ADAPTERS: Adapter[] = [bluesky, x, instagram, line];
+const ALL_ADAPTERS: Adapter[] = [x, instagram, line];
 
 export type DispatchResult = {
   adapter: string;
