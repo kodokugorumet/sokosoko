@@ -16,16 +16,17 @@
 
 ## 2. SEO
 
-| ID         | 항목                                   | 목표/방법                                 | 상태   |
-| ---------- | -------------------------------------- | ----------------------------------------- | ------ |
-| NFR-SEO-01 | 모든 정적/동적 URL sitemap.xml 등록    | post + question + 정적 페이지             | ✅     |
-| NFR-SEO-02 | robots.txt 노출 (`/studio` 차단)       | `app/robots.ts`                           | ✅     |
-| NFR-SEO-03 | hreflang JA/KO alternates              | sitemap + metadata `alternates.languages` | ✅     |
-| NFR-SEO-04 | 기사 Article + BreadcrumbList JSON-LD  | `[slug]/page.tsx`                         | ✅     |
-| NFR-SEO-05 | OG/Twitter (article type, large_image) | per-post                                  | ✅     |
-| NFR-SEO-06 | canonical URL                          | metadata.alternates.canonical             | ✅     |
-| NFR-SEO-07 | Q&A 페이지 QAPage JSON-LD              | `qa/[slug]/page.tsx`                      | ✅     |
-| NFR-SEO-08 | Google Search Console 검증             | meta verification                         | 미착수 |
+| ID         | 항목                                   | 목표/방법                                 | 상태 |
+| ---------- | -------------------------------------- | ----------------------------------------- | ---- |
+| NFR-SEO-01 | 모든 정적/동적 URL sitemap.xml 등록    | post + question + 정적 페이지             | ✅   |
+| NFR-SEO-02 | robots.txt 노출 (`/studio` 차단)       | `app/robots.ts`                           | ✅   |
+| NFR-SEO-03 | hreflang JA/KO alternates              | sitemap + metadata `alternates.languages` | ✅   |
+| NFR-SEO-04 | 기사 Article + BreadcrumbList JSON-LD  | `[slug]/page.tsx`                         | ✅   |
+| NFR-SEO-05 | OG/Twitter (article type, large_image) | per-post                                  | ✅   |
+| NFR-SEO-06 | canonical URL                          | metadata.alternates.canonical             | ✅   |
+| NFR-SEO-07 | Q&A 페이지 QAPage JSON-LD              | `qa/[slug]/page.tsx`                      | ✅   |
+| NFR-SEO-08 | Google Search Console 검증             | meta verification (env-driven)            | ✅   |
+| NFR-SEO-09 | Google Analytics 4                     | `@next/third-parties` GoogleAnalytics     | ✅   |
 
 ## 3. 다국어 / 접근성
 
