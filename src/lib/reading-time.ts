@@ -19,7 +19,7 @@ type PortableTextBlock = {
   children?: Array<{ _type?: string; text?: string }>;
 };
 
-function extractPlainText(blocks: unknown): string {
+export function extractPlainText(blocks: unknown): string {
   if (!Array.isArray(blocks)) return '';
   const out: string[] = [];
   for (const raw of blocks) {

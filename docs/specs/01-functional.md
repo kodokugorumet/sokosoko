@@ -78,19 +78,19 @@
 
 ## 6. SEO / 구조화 데이터
 
-| ID       | 기능                                                    | 위치                         | 상태         |
-| -------- | ------------------------------------------------------- | ---------------------------- | ------------ |
-| F-SEO-01 | sitemap.xml 동적 (모든 post + question 포함)            | `app/sitemap.ts`             | ✅           |
-| F-SEO-02 | robots.txt                                              | `app/robots.ts`              | ✅           |
-| F-SEO-03 | hreflang `xhtml:link` alternates (JA/KO)                | sitemap + metadata           | ✅           |
-| F-SEO-04 | 기사 OpenGraph (article, publishedTime, authors, cover) | `[slug]/page.tsx`            | ✅           |
-| F-SEO-05 | 기사 Twitter Card (summary_large_image when cover)      | `[slug]/page.tsx`            | ✅           |
-| F-SEO-06 | 기사 Article JSON-LD (headline, author, image, dates)   | `[slug]/page.tsx`            | ✅           |
-| F-SEO-07 | 기사 BreadcrumbList JSON-LD (Home → Pillar → Article)   | `[slug]/page.tsx`            | ✅           |
-| F-SEO-08 | 기사 canonical URL + hreflang alternates                | metadata                     | ✅           |
-| F-SEO-09 | 동적 OG 이미지 (사이트 기본)                            | `opengraph-image.tsx`        | ✅           |
-| F-SEO-10 | favicon / app-icon (브랜드 로고)                        | `icon.png`, `apple-icon.png` | ✅           |
-| F-SEO-11 | Q&A FAQPage / QAPage JSON-LD                            | —                            | ⏳ Phase D-4 |
+| ID       | 기능                                                    | 위치                         | 상태 |
+| -------- | ------------------------------------------------------- | ---------------------------- | ---- |
+| F-SEO-01 | sitemap.xml 동적 (모든 post + question 포함)            | `app/sitemap.ts`             | ✅   |
+| F-SEO-02 | robots.txt                                              | `app/robots.ts`              | ✅   |
+| F-SEO-03 | hreflang `xhtml:link` alternates (JA/KO)                | sitemap + metadata           | ✅   |
+| F-SEO-04 | 기사 OpenGraph (article, publishedTime, authors, cover) | `[slug]/page.tsx`            | ✅   |
+| F-SEO-05 | 기사 Twitter Card (summary_large_image when cover)      | `[slug]/page.tsx`            | ✅   |
+| F-SEO-06 | 기사 Article JSON-LD (headline, author, image, dates)   | `[slug]/page.tsx`            | ✅   |
+| F-SEO-07 | 기사 BreadcrumbList JSON-LD (Home → Pillar → Article)   | `[slug]/page.tsx`            | ✅   |
+| F-SEO-08 | 기사 canonical URL + hreflang alternates                | metadata                     | ✅   |
+| F-SEO-09 | 동적 OG 이미지 (사이트 기본)                            | `opengraph-image.tsx`        | ✅   |
+| F-SEO-10 | favicon / app-icon (브랜드 로고)                        | `icon.png`, `apple-icon.png` | ✅   |
+| F-SEO-11 | Q&A QAPage JSON-LD (acceptedAnswer 평문 추출)           | `qa/[slug]/page.tsx`         | ✅   |
 
 ## 7. 콘텐츠 UX
 
