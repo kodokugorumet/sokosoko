@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getPublicPostById } from '@/lib/posts/queries';
 import { renderTipTapHtml, isTipTapEmpty } from '@/lib/tiptap/render';
+import { CommentThread } from '@/components/comments/CommentThread';
 
 type Params = { locale: string; id: string };
 
@@ -117,6 +118,8 @@ export default async function PublicPostPage({ params }: { params: Promise<Param
       ) : (
         <p className="text-sm text-zinc-500">{t('emptyBody')}</p>
       )}
+
+      <CommentThread targetType="post" targetId={post.id} revalidatePathHint={`/p/${post.id}`} />
     </article>
   );
 }

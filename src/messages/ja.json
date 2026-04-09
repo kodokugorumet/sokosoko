@@ -342,6 +342,45 @@
     "fallbackBanner": "この記事は日本語訳がまだ準備できていないため、韓国語の原文を表示しています。",
     "emptyBody": "本文はまだ準備中です。"
   },
+  "Comments": {
+    "heading": "コメント ({count})",
+    "empty": "まだコメントがありません。最初のひとことを書いてみましょう。",
+    "loginPrompt": "コメントするにはログインしてください。",
+    "form": {
+      "label": "コメント",
+      "placeholder": "記事への感想や補足を書いてください (最大2000文字)",
+      "submit": "投稿する",
+      "submitting": "送信中…",
+      "error": {
+        "empty": "コメントを入力してください。",
+        "tooLong": "コメントが長すぎます (最大2000文字)。",
+        "unauthorized": "ログインが必要です。",
+        "invalidTarget": "投稿先が無効です。",
+        "unknown": "送信に失敗しました。少し時間をおいてもう一度お試しください。"
+      }
+    },
+    "actions": {
+      "delete": "削除",
+      "deleteConfirm": "このコメントを削除します。よろしいですか?",
+      "hide": "非表示にする",
+      "unhide": "再表示する"
+    }
+  },
+  "Moderation": {
+    "metaTitle": "モデレーション · 管理",
+    "heading": "モデレーション",
+    "subtitle": "非表示のコメント: {count} 件",
+    "hiddenComments": {
+      "heading": "非表示コメント",
+      "empty": "現在、非表示のコメントはありません。",
+      "viewSource": "元の投稿を見る →",
+      "actions": {
+        "unhide": "再表示",
+        "delete": "削除",
+        "deleteConfirm": "このコメントを完全に削除します。よろしいですか?"
+      }
+    }
+  },
   "Auth": {
     "notConfigured": "現在この環境ではログイン機能がまだ設定されていません。本番環境ではご利用いただけます。",
     "header": {
