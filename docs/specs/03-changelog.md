@@ -59,19 +59,22 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 
 ### 심야 — Q&A SEO + 사이트 검색
 
-| PR     | 제목                                                                 |
-| ------ | -------------------------------------------------------------------- |
-| #23–26 | feat(qa,seo,a11y): QAPage JSON-LD, focus trap, mobile header fix     |
-| #30    | chore(deps): bump Next.js 16.2.3 (CVE-2026-23869) + runtime group    |
-| #34    | chore(ci): pin Dependabot ignore for @types/node major bumps         |
-| #35    | feat(search): site-wide search across posts & questions              |
-| #36    | feat(seo): GSC verification meta + GA4 (env-driven, optional)        |
-| #37    | docs(ops): runbook for Sanity revalidate webhook registration        |
-| #38    | docs(ops): editor-facing content authoring guide for Studio          |
-| #39    | feat(sns): Bluesky auto-syndication + adapter scaffold for X/IG/LINE |
-| #40    | feat(sns): full X (Twitter) v2 adapter with OAuth 1.0a signer        |
-| #41    | chore(seo): hardcode GSC verification token                          |
-| #42    | ci(lighthouse): add LHCI workflow with perf/a11y/seo assertions      |
+| PR     | 제목                                                                      |
+| ------ | ------------------------------------------------------------------------- |
+| #23–26 | feat(qa,seo,a11y): QAPage JSON-LD, focus trap, mobile header fix          |
+| #30    | chore(deps): bump Next.js 16.2.3 (CVE-2026-23869) + runtime group         |
+| #34    | chore(ci): pin Dependabot ignore for @types/node major bumps              |
+| #35    | feat(search): site-wide search across posts & questions                   |
+| #36    | feat(seo): GSC verification meta + GA4 (env-driven, optional)             |
+| #37    | docs(ops): runbook for Sanity revalidate webhook registration             |
+| #38    | docs(ops): editor-facing content authoring guide for Studio               |
+| #39    | feat(sns): Bluesky auto-syndication + adapter scaffold for X/IG/LINE      |
+| #40    | feat(sns): full X (Twitter) v2 adapter with OAuth 1.0a signer             |
+| #41    | chore(seo): hardcode GSC verification token                               |
+| #42    | ci(lighthouse): add LHCI workflow with perf/a11y/seo assertions           |
+| #43    | chore(sns): drop Bluesky adapter and unused @atproto/api / twitter-api-v2 |
+| #44    | fix(i18n): render <html lang> and not-found page in the actual locale     |
+| #45    | docs(adr): ADR-0004 — drop Sanity for Supabase single stack               |
 
 ## 누적 통계 (2일)
 
@@ -86,8 +89,21 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 
 ## Phase 1 진행도 (체감)
 
-- **콘텐츠 모델 / 라우트** — ✅ 100% (Q&A · 검색 모두 도입)
+- **콘텐츠 모델 / 라우트** — ⚠️ Phase 2 에서 재구축 예정 ([ADR-0004](../adr/0004-drop-sanity-for-supabase.md))
 - **SEO** — ✅ 95% (GSC 콘솔 등록 후 운영자가 토큰을 Vercel env 에 입력하면 완료)
-- **운영 자동화** — ⏳ 80% (웹훅 핸들러 + 등록 가이드 완료, 운영자가 Studio 에 등록하면 완료)
-- **SNS 자동 송출** — ⏳ 25% (webhook + dispatcher + Bluesky 어댑터 완료, X/IG/LINE 은 stub)
-- **시드 콘텐츠 10편** — ⏸ 운영진 작성 대기 ([authoring guide](../runbooks/content-authoring.md) 완료)
+- **운영 자동화** — ⏸ Phase 2 마이그레이션 후 재정의
+- **SNS 자동 송출** — ⏳ 25% (X 어댑터 풀 구현, IG/LINE 은 stub. 트리거 소스는 Phase 2 에서 Supabase 로 전환)
+- **시드 콘텐츠 10편** — ⏸ Phase 2 (Supabase) 인프라 완성 후 진행
+
+## Phase 2 (시작)
+
+[ADR-0004](../adr/0004-drop-sanity-for-supabase.md) 에 따라 Sanity 를 완전히 제거하고 Supabase 단일 스택으로 전환.
+
+| 단계      | 설명                                                                      | 상태 |
+| --------- | ------------------------------------------------------------------------- | ---- |
+| Phase 2-A | ADR-0004 (#45) 결정 문서                                                  | ✅   |
+| Phase 2-B | `feat/supabase-foundation` — @supabase/ssr + auth + profiles + /login     | ⏸    |
+| Phase 2-C | `feat/posts-and-boards` — boards/posts 테이블 + TipTap 에디터 + 목록/상세 | ⏸    |
+| Phase 2-D | `feat/qa-with-answers` — Q&A 답변 + 신뢰 뱃지 정렬                        | ⏸    |
+| Phase 2-E | `feat/comments-and-moderation` — 댓글 + 모더레이션 큐                     | ⏸    |
+| Phase 2-F | `chore/remove-sanity` — Sanity 코드/의존성 제거 + 라우팅 정리             | ⏸    |
