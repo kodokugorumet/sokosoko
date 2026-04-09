@@ -1,7 +1,7 @@
 /**
  * SNS auto-syndication adapter contract.
  *
- * Each platform (Bluesky, X, Instagram, LINE) implements `Adapter`. The
+ * Each platform (X, Instagram, LINE) implements `Adapter`. The
  * dispatcher (./index.ts) runs every adapter that reports `isConfigured()`
  * and aggregates the results so the operator can see at a glance which
  * channels fired and which were skipped or failed.
@@ -28,7 +28,7 @@ export type AdapterResult =
   | { status: 'error'; error: string };
 
 export type Adapter = {
-  /** Short stable id used in logs and runbook (`bluesky`, `x`, `instagram`, `line`). */
+  /** Short stable id used in logs and runbook (`x`, `instagram`, `line`). */
   name: string;
   /**
    * True only if every required env var is present. The dispatcher uses

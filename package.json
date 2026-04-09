@@ -27,7 +27,6 @@
     ]
   },
   "dependencies": {
-    "@atproto/api": "^0.19.6",
     "@next/third-parties": "^16.2.3",
     "@portabletext/react": "^6.0.3",
     "@sanity/image-url": "2",
@@ -39,8 +38,7 @@
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "sanity": "5",
-    "styled-components": "^6.3.12",
-    "twitter-api-v2": "^1.29.0"
+    "styled-components": "^6.3.12"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
