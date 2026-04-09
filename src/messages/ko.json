@@ -289,6 +289,7 @@
       "subtitle": "총 {count} 건",
       "newButton": "새 글 작성",
       "untitled": "(제목 없음)",
+      "byMe": "내 글",
       "empty": {
         "heading": "아직 게시글이 없어요",
         "body": "우측 상단의 「새 글 작성」에서 첫 번째 글을 써보세요."

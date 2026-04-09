@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { requireRole } from '@/lib/auth/require-role';
-import { listPostsByAuthor, type PostListRow } from '@/lib/posts/queries';
+import { listAllAdminPosts, type AdminPostListRow, type UserRole } from '@/lib/posts/queries';
 
 type Params = { locale: string };
 
@@ -15,11 +15,18 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-const STATUS_BADGE: Record<PostListRow['status'], string> = {
+const STATUS_BADGE: Record<AdminPostListRow['status'], string> = {
   draft: 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
   pending: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200',
   published: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200',
   rejected: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200',
+};
+
+const ROLE_BADGE: Record<UserRole, string> = {
+  admin: '👑',
+  operator: '🏅',
+  verified: '✅',
+  member: '',
 };
 
 export default async function AdminPostsPage({ params }: { params: Promise<Params> }) {
@@ -31,7 +38,15 @@ export default async function AdminPostsPage({ params }: { params: Promise<Param
   const user = await requireRole('operator');
   const t = await getTranslations('Admin.posts');
 
-  const posts = await listPostsByAuthor(user.id);
+  // Team-wide list. RLS (`posts_read_admin_all`) already allows any
+  // admin/operator to read every post, so showing the whole queue lets
+  // operators hand off drafts and review each other's work without
+  // creating a permission gap. Each row still shows the author so
+  // ownership stays obvious.
+  const posts = await listAllAdminPosts().catch((err) => {
+    console.error('[AdminPostsPage] listAllAdminPosts failed', err);
+    return [] as AdminPostListRow[];
+  });
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-10 sm:py-16">
@@ -67,6 +82,8 @@ export default async function AdminPostsPage({ params }: { params: Promise<Param
               post.title_ja ??
               post.title_ko ??
               t('untitled');
+            const isMine = post.author.id === user.id;
+            const authorBadge = ROLE_BADGE[post.author.role] ?? '';
             return (
               <li key={post.id}>
                 <Link
@@ -78,7 +95,11 @@ export default async function AdminPostsPage({ params }: { params: Promise<Param
                       {title}
                     </span>
                     <span className="text-xs text-zinc-500">
-                      {post.board_slug} · {formatDate(post.updated_at, locale)}
+                      {post.board_slug} · {formatDate(post.updated_at, locale)} ·{' '}
+                      <span className={isMine ? 'font-medium text-[var(--ink)]' : ''}>
+                        {authorBadge ? `${authorBadge} ` : ''}
+                        {isMine ? t('byMe') : post.author.nickname}
+                      </span>
                     </span>
                   </div>
                   <span
