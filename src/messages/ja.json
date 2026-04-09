@@ -296,8 +296,8 @@
         "heading": "投稿を編集",
         "viewPublic": "公開ページを見る →",
         "lastUpdated": "最終更新: {date}",
-        "publish": "公開する",
-        "unpublish": "下書きに戻す",
+        "publish": "公開",
+        "unpublish": "非公開",
         "delete": "削除",
         "deleteConfirm": "この投稿を完全に削除します。よろしいですか?"
       },

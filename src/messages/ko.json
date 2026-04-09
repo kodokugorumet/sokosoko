@@ -296,8 +296,8 @@
         "heading": "글 편집",
         "viewPublic": "공개 페이지 보기 →",
         "lastUpdated": "최근 수정: {date}",
-        "publish": "공개하기",
-        "unpublish": "초안으로 되돌리기",
+        "publish": "공개",
+        "unpublish": "비공개",
         "delete": "삭제",
         "deleteConfirm": "이 글을 완전히 삭제합니다. 계속할까요?"
       },
