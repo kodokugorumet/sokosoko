@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { requireRole } from '@/lib/auth/require-role';
-import { getAdminPostById } from '@/lib/posts/queries';
+import { getAdminPostByIdWithAuthor, type UserRole } from '@/lib/posts/queries';
 import { PostForm } from '../PostForm';
 import { PublishActions } from './PublishActions';
 
@@ -18,15 +18,35 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
+const ROLE_BADGE: Record<UserRole, string> = {
+  admin: '👑',
+  operator: '🏅',
+  verified: '✅',
+  member: '',
+};
+
 export default async function EditAdminPostPage({ params }: { params: Promise<Params> }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  await requireRole('operator');
+  const user = await requireRole('operator');
   const t = await getTranslations('Admin.posts.edit');
 
-  const post = await getAdminPostById(id);
+  const post = await getAdminPostByIdWithAuthor(id).catch((err) => {
+    console.error('[EditAdminPostPage] getAdminPostByIdWithAuthor failed', { id, err });
+    return null;
+  });
   if (!post) notFound();
+
+  const isForeignAuthor = post.author.id !== user.id;
+  const authorBadge = ROLE_BADGE[post.author.role] ?? '';
+  // Build the canonical public URL — the legacy /p/[id] redirect exists
+  // but the direct /[board]/[slug] is what readers actually share, so
+  // link there from the admin edit screen too.
+  const publicHref =
+    post.status === 'published' && post.slug
+      ? `/${post.board_slug}/${encodeURIComponent(post.slug)}`
+      : null;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10 sm:py-16">
@@ -34,15 +54,26 @@ export default async function EditAdminPostPage({ params }: { params: Promise<Pa
         <h1 className="font-hand text-3xl tracking-wide text-[var(--ink)] sm:text-4xl">
           {t('heading')}
         </h1>
-        {post.status === 'published' && post.slug ? (
+        {publicHref ? (
           <Link
-            href={`/p/${post.id}`}
+            href={publicHref}
             className="text-xs text-zinc-500 underline-offset-4 hover:text-[var(--accent)] hover:underline"
           >
             {t('viewPublic')}
           </Link>
         ) : null}
       </div>
+
+      {/* Foreign-author warning: an admin editing another operator's
+          draft should be able to see whose work they're touching before
+          they hit Save. Own posts show nothing (cleaner default). */}
+      {isForeignAuthor ? (
+        <div className="hand-box mb-4 rounded-md bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-900/30 dark:text-amber-100">
+          {t('byAuthor', {
+            nickname: `${authorBadge ? `${authorBadge} ` : ''}${post.author.nickname}`,
+          })}
+        </div>
+      ) : null}
 
       <div className="mb-8 flex items-center gap-2 text-xs">
         <StatusBadge status={post.status} />

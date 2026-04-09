@@ -224,8 +224,12 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             {authorName}
           </span>
           <time dateTime={publishedAtIso}>{formatDate(publishedAtIso, loc)}</time>
-          <span aria-hidden="true">·</span>
-          <span>{t('readingTime', { minutes: readingMinutes })}</span>
+          {readingMinutes > 0 ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{t('readingTime', { minutes: readingMinutes })}</span>
+            </>
+          ) : null}
         </div>
       </header>
 

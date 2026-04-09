@@ -310,6 +310,7 @@
         "heading": "글 편집",
         "viewPublic": "공개 페이지 보기 →",
         "lastUpdated": "최근 수정: {date}",
+        "byAuthor": "이 글의 작성자는 {nickname} 님입니다. 저장하기 전에 확인해 주세요.",
         "publish": "공개",
         "unpublish": "비공개",
         "delete": "삭제",
