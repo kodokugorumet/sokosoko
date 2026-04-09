@@ -1,8 +1,15 @@
 # ADR-0004: Sanity 완전 제거, Supabase 단일 스택으로 전환
 
-- Status: Accepted
+- Status: **Implemented** (Phase 2-F, PR #60, 2026-04-10)
 - Date: 2026-04-09
 - Supersedes: [ADR-0001](./0001-tech-stack.md) 의 "Sanity = 콘텐츠 모델 + CMS" 섹션
+- Implementation PRs:
+  - #46 Phase 2-B: Supabase 기반 (auth, profiles, onboarding, migration 0001)
+  - #49 Phase 2-C: TipTap 에디터 + 관리자 게시글 CRUD + /p/[id] 공개 페이지
+  - #51 Phase 2-D: Q&A + 유저 답변 + 신뢰 뱃지 정렬
+  - #59 Phase 2-E: 댓글 + 모더레이션 큐 (migration 0002)
+  - #60 Phase 2-F: Sanity 백엔드 완전 제거, 모든 public 페이지 Supabase 전환
+  - #62 Phase 2-E 후속: per-answer comments
 
 ## Context
 

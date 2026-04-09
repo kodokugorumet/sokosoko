@@ -1,5 +1,23 @@
 # 02. Non-Functional Specification (NFR)
 
+> **⚠️ 2026-04-10 업데이트**
+>
+> Phase 2 ([ADR-0004](../adr/0004-drop-sanity-for-supabase.md)) 에서 백엔드가 Supabase 로
+> 전환되어 아래 본문의 "Sanity image pipeline / GROQ 라운드트립 / Sanity 토큰 /
+> PortableText XSS / @sanity/webhook / Sanity 도큐먼트 truth" 언급은 의미가
+> 바뀌었습니다. 현재 매핑:
+>
+> - **이미지 파이프라인**: Sanity image URL → Supabase Storage 직접 (`next/image`
+>   전환은 Phase 2-G 예정, 현재는 plain `<img>`)
+> - **GROQ 라운드트립**: → Postgres 2-step (posts → profiles) 쿼리
+> - **Sanity 토큰 server-only**: → Supabase service_role 키 server-only
+> - **PortableText XSS 방어**: → TipTap JSON + `@tiptap/html` 서버 렌더 (같은 whitelist 원리)
+> - **revalidate 웹훅 HMAC**: → Server Action `revalidatePath()` 직접 호출 (HMAC 불필요)
+> - **단일 진실 공급원**: → Supabase `posts` + RLS 정책
+>
+> NFR-xx 고유 번호 자체는 그대로 유지됩니다. 정확한 현재 구현 상태는
+> [`03-changelog.md`](./03-changelog.md) 를 보세요.
+
 본 문서는 [01-functional.md](./01-functional.md) 의 기능이 충족해야 하는 품질 속성을 정의합니다.
 
 ## 1. 성능 (Performance)

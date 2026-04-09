@@ -1,7 +1,8 @@
 # ADR-0001: 技術スタック選定
 
-- Status: Accepted
+- Status: **Partially superseded** (CMS portion only)
 - Date: 2026-04-08
+- Superseded by: [ADR-0004](./0004-drop-sanity-for-supabase.md) — Sanity CMS 부분은 Supabase 로 전환됨 (Phase 2-F, 2026-04-10). Next.js / next-intl / TypeScript / Tailwind / Vercel (ADR-0003) 부분은 유효함.
 
 ## Context
 

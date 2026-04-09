@@ -1,5 +1,15 @@
 # 00. Requirements Specification (SRS)
 
+> **⚠️ 2026-04-10 업데이트**
+>
+> 이 문서는 Phase 1 (Sanity 기반) 시점의 원본 요구사항 정의입니다. Phase 2
+> ([ADR-0004](../adr/0004-drop-sanity-for-supabase.md)) 에서 백엔드가 Sanity 에서
+> Supabase 단일 스택으로 전환되었고, 유저 회원가입·댓글·Q&A 답변 등 UGC 기능이
+> 추가되었습니다. 아래 본문의 "Sanity", "Studio", "PortableText", "GROQ" 언급은
+> 역사적 맥락으로만 남겨두고 있으며, 현재 구현의 정확한 상태는
+> [`03-changelog.md`](./03-changelog.md) 와 [ADR-0004](../adr/0004-drop-sanity-for-supabase.md) 를
+> 참고하세요. REQ-xx 고유 번호 자체는 의미가 유지되도록 그대로 둡니다.
+
 ## 프로젝트 개요
 
 | 항목          | 내용                                                                     |

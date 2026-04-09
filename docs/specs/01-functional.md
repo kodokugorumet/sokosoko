@@ -1,5 +1,23 @@
 # 01. Functional Specification (FS)
 
+> **⚠️ 2026-04-10 업데이트**
+>
+> Phase 2 ([ADR-0004](../adr/0004-drop-sanity-for-supabase.md)) 에서 Sanity 가 제거되고
+> Supabase 단일 스택으로 전환되었습니다. 아래 본문의 "Sanity", "Studio",
+> "PortableText", "GROQ", "/api/revalidate", "/studio" 관련 항목은 **obsolete** 이며,
+> 현재 구현은 다음으로 대체됐습니다:
+>
+> - **콘텐츠 저장소**: Sanity Studio → Supabase `posts` / `answers` / `comments` 테이블
+> - **에디터**: Studio PortableText → 자체 TipTap v3 에디터 (`/admin/posts/new`)
+> - **본문 포맷**: PortableText block array → TipTap JSONContent 문서 (`jsonb` 컬럼)
+> - **ISR revalidate**: `/api/revalidate` webhook → Server Action `revalidatePath()` 직접 호출
+> - **관리자 페이지**: `/studio` → `/admin/posts`, `/admin/moderation`
+> - **Q&A 답변**: 읽기 전용 → 인증된 유저 쓰기 가능 + 신뢰 뱃지 정렬
+> - **댓글**: 없음 → `comments` 테이블 + `/p/[id]` · `/qa/[slug]` 에 스레드 UI
+>
+> F-PAGE-xx 고유 번호 자체는 의미가 유지되도록 그대로 둡니다. 정확한
+> 현재 상태는 [`03-changelog.md`](./03-changelog.md) 를 보세요.
+
 ## 1. 사이트맵
 
 ```
