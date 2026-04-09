@@ -1,13 +1,9 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 import { sanityFetch } from '../../sanity/lib/fetch';
-import {
-  ALL_POST_SLUGS_QUERY,
-  ALL_QUESTION_SLUGS_QUERY,
-  type PostSlug,
-  type QuestionSlug,
-  type Pillar,
-} from '../../sanity/lib/queries';
+import { ALL_POST_SLUGS_QUERY, type PostSlug, type Pillar } from '../../sanity/lib/queries';
+import { listAllQuestionSlugs } from '@/lib/posts/queries';
+import { isSupabaseConfigured } from '@/lib/supabase/server';
 
 // Static paths that always exist for every locale.
 const STATIC_PATHS = ['', '/about', '/contact', '/qa'] as const;
@@ -33,20 +29,17 @@ function alternatesFor(path: string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  // Parallel fetches for every published post and question. Tagged with
-  // the same `post`/`question` tags the webhook uses so sitemap.xml gets
-  // invalidated alongside the page routes.
+  // Posts still come from Sanity until Phase 2-F; questions have already
+  // moved to Supabase (Phase 2-D). When Supabase env vars are missing
+  // (CI builds with dummy config) the question fetch is skipped entirely
+  // rather than throwing.
   const [posts, questions] = await Promise.all([
     sanityFetch<PostSlug[]>({
       query: ALL_POST_SLUGS_QUERY,
       tags: ['post', 'sitemap'],
       fallback: [],
     }),
-    sanityFetch<QuestionSlug[]>({
-      query: ALL_QUESTION_SLUGS_QUERY,
-      tags: ['question', 'sitemap'],
-      fallback: [],
-    }),
+    isSupabaseConfigured() ? listAllQuestionSlugs().catch(() => []) : Promise.resolve([]),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.flatMap((path) =>
@@ -87,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const questionEntries: MetadataRoute.Sitemap = questions.flatMap((q) => {
     if (!q.slug) return [];
     const path = `/qa/${q.slug}`;
-    const lastMod = q._updatedAt ?? q.askedAt;
+    const lastMod = q.updated_at ?? q.published_at;
     return routing.locales.map((locale) => ({
       url: urlFor(locale, path),
       lastModified: lastMod ? new Date(lastMod) : now,

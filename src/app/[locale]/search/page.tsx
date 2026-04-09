@@ -1,15 +1,9 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { PostCard } from '@/components/post/PostCard';
 import { sanityFetch } from '../../../../sanity/lib/fetch';
-import {
-  SEARCH_POSTS_QUERY,
-  SEARCH_QUESTIONS_QUERY,
-  type PostCard as PostCardType,
-  type QuestionCard,
-} from '../../../../sanity/lib/queries';
+import { SEARCH_POSTS_QUERY, type PostCard as PostCardType } from '../../../../sanity/lib/queries';
 
 // Search results are user-driven and never the canonical home of any
 // content — `generateMetadata` below sets `robots: noindex` to keep them
@@ -18,19 +12,6 @@ import {
 type Params = { locale: string };
 type Search = { q?: string };
 type Locale = 'ja' | 'ko';
-
-function pickLocaleString(value: { ja?: string; ko?: string } | undefined, locale: Locale) {
-  if (!value) return '';
-  return value[locale] ?? value[locale === 'ja' ? 'ko' : 'ja'] ?? '';
-}
-
-function formatDate(iso: string, locale: Locale) {
-  return new Date(iso).toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
 
 /**
  * Build a GROQ `match` token from raw user input. GROQ matches whole
@@ -75,27 +56,23 @@ export default async function SearchPage({
   const query = (rawQ ?? '').trim();
   const token = query ? buildMatchToken(query) : '';
 
-  const [posts, questions] = token
-    ? await Promise.all([
-        sanityFetch<PostCardType[]>({
-          query: SEARCH_POSTS_QUERY,
-          params: { q: token },
-          // No `tags` here — search results aren't a stable cache key,
-          // and the underlying `post` / `question` tags are already
-          // invalidated by the revalidate webhook on content edits.
-          revalidate: 60,
-          fallback: [],
-        }),
-        sanityFetch<QuestionCard[]>({
-          query: SEARCH_QUESTIONS_QUERY,
-          params: { q: token },
-          revalidate: 60,
-          fallback: [],
-        }),
-      ])
-    : [[] as PostCardType[], [] as QuestionCard[]];
+  // Q&A search was removed in Phase 2-D when questions moved to Supabase.
+  // A Supabase-backed full-text search is a separate chunk of work (needs
+  // a `tsvector` column + GIN index) and will land alongside the other
+  // Supabase read paths in Phase 2-F.
+  const posts = token
+    ? await sanityFetch<PostCardType[]>({
+        query: SEARCH_POSTS_QUERY,
+        params: { q: token },
+        // No `tags` here — search results aren't a stable cache key,
+        // and the underlying `post` tag is already invalidated by the
+        // revalidate webhook on content edits.
+        revalidate: 60,
+        fallback: [],
+      })
+    : ([] as PostCardType[]);
 
-  const totalCount = posts.length + questions.length;
+  const totalCount = posts.length;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-10 sm:py-16">
@@ -129,39 +106,6 @@ export default async function SearchPage({
                         <PostCard post={post} locale={loc} />
                       </li>
                     ))}
-                  </ul>
-                </section>
-              ) : null}
-
-              {questions.length > 0 ? (
-                <section>
-                  <h2 className="font-hand mb-4 text-lg tracking-wide text-[var(--ink)] sm:text-xl">
-                    {t('questionsHeading', { count: questions.length })}
-                  </h2>
-                  <ul className="space-y-3">
-                    {questions.map((q) => {
-                      const title = pickLocaleString(q.title, loc);
-                      return (
-                        <li key={q._id}>
-                          <Link
-                            href={`/qa/${q.slug}`}
-                            className="hand-box group flex flex-col gap-1 rounded-md p-4 transition-colors hover:bg-[var(--accent-soft)] sm:flex-row sm:items-center sm:justify-between"
-                          >
-                            <div className="flex flex-1 flex-col gap-1">
-                              <span className="font-hand text-xs tracking-wide text-[var(--accent)]">
-                                {t(`pillars.${q.pillar}`)}
-                              </span>
-                              <h3 className="text-base font-medium tracking-tight text-[var(--ink)] group-hover:text-[var(--accent)]">
-                                Q. {title}
-                              </h3>
-                            </div>
-                            <time className="text-xs text-zinc-500" dateTime={q.askedAt}>
-                              {formatDate(q.askedAt, loc)}
-                            </time>
-                          </Link>
-                        </li>
-                      );
-                    })}
                   </ul>
                 </section>
               ) : null}
