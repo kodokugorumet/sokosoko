@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { PortableTextRenderer } from '@/components/post/PortableTextRenderer';
+import { extractPlainText } from '@/lib/reading-time';
 import { sanityFetch } from '../../../../../sanity/lib/fetch';
 import {
   ALL_QUESTION_SLUGS_QUERY,
@@ -13,6 +14,8 @@ import {
 } from '../../../../../sanity/lib/queries';
 
 export const revalidate = 3600;
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
 type Params = { locale: string; slug: string };
 type Locale = 'ja' | 'ko';
@@ -52,8 +55,21 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { locale, slug } = await params;
   const q = await fetchQuestion(slug);
   if (!q) return {};
-  const title = pickLocaleString(q.title, locale as Locale);
-  return { title: `Q. ${title}` };
+  const loc = locale as Locale;
+  const title = pickLocaleString(q.title, loc);
+  const canonicalPath = `/qa/${slug}`;
+  const canonicalUrl =
+    loc === 'ja' ? `${SITE_URL}${canonicalPath}` : `${SITE_URL}/${loc}${canonicalPath}`;
+  return {
+    title: `Q. ${title}`,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ja: `${SITE_URL}${canonicalPath}`,
+        ko: `${SITE_URL}/ko${canonicalPath}`,
+      },
+    },
+  };
 }
 
 export default async function QuestionPage({ params }: { params: Promise<Params> }) {
@@ -75,8 +91,43 @@ export default async function QuestionPage({ params }: { params: Promise<Params>
   const usedFallback = (!primary || primary.length === 0) && !!fallback?.length;
   const answer = usedFallback ? fallback : primary;
 
+  // Schema.org QAPage — Google's recommended shape for single-Q pages.
+  // The acceptedAnswer needs a plain-text body, so flatten Portable Text
+  // here. Skip emitting the script entirely if there is no answer yet.
+  const canonicalPath = `/qa/${slug}`;
+  const canonicalUrl =
+    loc === 'ja' ? `${SITE_URL}${canonicalPath}` : `${SITE_URL}/${loc}${canonicalPath}`;
+  const answerText = answer ? extractPlainText(answer).trim() : '';
+  const qaPageJsonLd =
+    answerText.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'QAPage',
+          mainEntity: {
+            '@type': 'Question',
+            name: title,
+            text: title,
+            inLanguage: loc === 'ja' ? 'ja-JP' : 'ko-KR',
+            dateCreated: q.askedAt,
+            answerCount: 1,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: answerText,
+              inLanguage: loc === 'ja' ? 'ja-JP' : 'ko-KR',
+              url: canonicalUrl,
+            },
+          },
+        }
+      : null;
+
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-10 sm:py-16">
+      {qaPageJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(qaPageJsonLd) }}
+        />
+      ) : null}
       <div className="mb-6">
         <Link
           href="/qa"
