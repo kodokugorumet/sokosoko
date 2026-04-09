@@ -192,6 +192,53 @@ export const ALL_POST_SLUGS_QUERY = defineQuery(`
   }
 `);
 
+// ----- Search -----
+
+/**
+ * Full-text search across published posts.
+ *
+ * Matches the query against bilingual title/excerpt and Portable Text body
+ * (`pt::text` flattens block content to a string). Returns the same shape
+ * as PostCard so the result list reuses existing components.
+ *
+ * `$q` should already be a GROQ match token (e.g. `釜山*`). The page
+ * handler is responsible for trimming + appending the wildcard.
+ */
+export const SEARCH_POSTS_QUERY = defineQuery(`
+  *[
+    _type == "post"
+    && defined(slug.current)
+    && !(_id in path("drafts.**"))
+    && (
+      title.ja match $q
+      || title.ko match $q
+      || excerpt.ja match $q
+      || excerpt.ko match $q
+      || pt::text(bodyJa) match $q
+      || pt::text(bodyKo) match $q
+    )
+  ] | order(publishedAt desc)[0...20] {
+    ${POST_FIELDS}
+  }
+`);
+
+/** Full-text search across published questions (titles + answers). */
+export const SEARCH_QUESTIONS_QUERY = defineQuery(`
+  *[
+    _type == "question"
+    && defined(slug.current)
+    && !(_id in path("drafts.**"))
+    && (
+      title.ja match $q
+      || title.ko match $q
+      || pt::text(answerJa) match $q
+      || pt::text(answerKo) match $q
+    )
+  ] | order(featured desc, askedAt desc)[0...20] {
+    ${QUESTION_FIELDS}
+  }
+`);
+
 // ----- Result types (manual; replace with sanity typegen output later) -----
 
 export type Bilingual = { ja?: string; ko?: string };

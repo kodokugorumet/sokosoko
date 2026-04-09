@@ -57,21 +57,30 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 | --- | ---------------------------------------------------------- |
 | #22 | feat(qa): Sanity-backed questions with list & detail pages |
 
+### 심야 — Q&A SEO + 사이트 검색
+
+| PR     | 제목                                                              |
+| ------ | ----------------------------------------------------------------- |
+| #23–26 | feat(qa,seo,a11y): QAPage JSON-LD, focus trap, mobile header fix  |
+| #30    | chore(deps): bump Next.js 16.2.3 (CVE-2026-23869) + runtime group |
+| #34    | chore(ci): pin Dependabot ignore for @types/node major bumps      |
+| #35    | feat(search): site-wide search across posts & questions           |
+
 ## 누적 통계 (2일)
 
-| 항목                 | 수치                                      |
-| -------------------- | ----------------------------------------- |
-| 머지된 PR            | 22+                                       |
-| 도입한 라우트        | 15                                        |
-| Sanity 도큐먼트 타입 | 7                                         |
-| GROQ 쿼리            | 9                                         |
-| JSON-LD 스키마 종류  | 2 (Article, BreadcrumbList) — QAPage 예정 |
-| 지원 로케일          | 2 (ja, ko)                                |
+| 항목                 | 수치                                |
+| -------------------- | ----------------------------------- |
+| 머지된 PR            | 30+                                 |
+| 도입한 라우트        | 16                                  |
+| Sanity 도큐먼트 타입 | 7                                   |
+| GROQ 쿼리            | 11 (검색 2종 추가)                  |
+| JSON-LD 스키마 종류  | 3 (Article, BreadcrumbList, QAPage) |
+| 지원 로케일          | 2 (ja, ko)                          |
 
 ## Phase 1 진행도 (체감)
 
-- **콘텐츠 모델 / 라우트** — ✅ 90% (Q&A FAQPage JSON-LD, 검색 잔여)
-- **SEO** — ✅ 85% (GSC 등록, FAQPage 잔여)
+- **콘텐츠 모델 / 라우트** — ✅ 100% (Q&A · 검색 모두 도입)
+- **SEO** — ✅ 90% (GSC 등록 잔여)
 - **운영 자동화** — ⏳ 60% (Sanity 웹훅 Studio 등록 미완)
 - **SNS 자동 송출** — ⏸ 0% (Phase 1 후반)
 - **시드 콘텐츠 10편** — ⏸ 운영진 작성 대기

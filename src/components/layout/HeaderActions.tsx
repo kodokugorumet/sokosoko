@@ -15,6 +15,7 @@ const useIsClient = () =>
   );
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { SearchBox } from '@/components/search/SearchBox';
 import { LocaleSwitcher } from './LocaleSwitcher';
 
 /**
@@ -158,6 +159,12 @@ export function HeaderActions() {
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-6">
+          {/* Search lives at the top of the drawer so the header stays
+              minimal but the input is still one tap away. */}
+          <div className="mb-4">
+            <SearchBox onSubmitted={close} />
+          </div>
+
           <Link
             href="/"
             onClick={close}

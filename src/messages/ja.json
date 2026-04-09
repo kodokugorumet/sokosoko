@@ -236,6 +236,29 @@
       ]
     }
   },
+  "Search": {
+    "metaTitle": "検索",
+    "metaDescription": "「いもじょも」サイト内の記事と Q&A を検索します。",
+    "title": "検索",
+    "subtitle": "サイト内をさがす",
+    "label": "検索キーワード",
+    "placeholder": "キーワードを入力…",
+    "submit": "検索",
+    "promptEmpty": "上の検索ボックスにキーワードを入力してください。記事と Q&A の両方から探します。",
+    "resultSummary": "「{query}」の検索結果: {count} 件",
+    "postsHeading": "記事 ({count})",
+    "questionsHeading": "Q&A ({count})",
+    "noResults": {
+      "heading": "見つかりませんでした",
+      "body": "別のキーワードや、より短い言葉でもう一度お試しください。"
+    },
+    "pillars": {
+      "life": "暮らし",
+      "study": "学ぶ",
+      "trip": "旅行",
+      "other": "その他"
+    }
+  },
   "NotFound": {
     "heading": "ページが見つかりません",
     "body": "お探しのページは移動または削除されたか、もともと存在しないかもしれません。",
