@@ -40,10 +40,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     sanityFetch<PostSlug[]>({
       query: ALL_POST_SLUGS_QUERY,
       tags: ['post', 'sitemap'],
+      fallback: [],
     }),
     sanityFetch<QuestionSlug[]>({
       query: ALL_QUESTION_SLUGS_QUERY,
       tags: ['question', 'sitemap'],
+      fallback: [],
     }),
   ]);
 

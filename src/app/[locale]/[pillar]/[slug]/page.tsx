@@ -56,6 +56,7 @@ export async function generateStaticParams() {
   const slugs = await sanityFetch<PostSlug[]>({
     query: ALL_POST_SLUGS_QUERY,
     revalidate: 0,
+    fallback: [],
   });
   // Cross every published post with each supported locale.
   return slugs.flatMap((entry) =>
@@ -72,6 +73,7 @@ async function fetchPost(slug: string) {
     query: POST_BY_SLUG_QUERY,
     params: { slug },
     tags: ['post', `post:${slug}`],
+    fallback: null,
   });
 }
 
@@ -80,6 +82,7 @@ async function fetchRelated(pillar: PillarSlug, slug: string) {
     query: RELATED_POSTS_QUERY,
     params: { pillar, slug },
     tags: ['post', `pillar:${pillar}`],
+    fallback: [],
   });
 }
 
