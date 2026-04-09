@@ -47,6 +47,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const latest = await sanityFetch<LatestPostsByPillar>({
     query: LATEST_POSTS_HOME_QUERY,
     tags: ['post', 'home'],
+    fallback: { life: [], study: [], trip: [] },
   });
 
   return (

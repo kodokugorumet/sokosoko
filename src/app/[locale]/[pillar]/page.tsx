@@ -48,6 +48,7 @@ export default async function PillarPage({ params }: { params: Promise<Params> }
     query: POSTS_BY_PILLAR_QUERY,
     params: { pillar: pillar satisfies Pillar },
     tags: ['post', `pillar:${pillar}`],
+    fallback: [],
   });
 
   return (

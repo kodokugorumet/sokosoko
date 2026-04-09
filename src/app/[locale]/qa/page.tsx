@@ -46,6 +46,7 @@ export default async function QaPage({ params }: { params: Promise<Params> }) {
   const questions = await sanityFetch<QuestionCard[]>({
     query: QUESTIONS_QUERY,
     tags: ['question'],
+    fallback: [],
   });
 
   const featured = questions.filter((q) => q.featured);

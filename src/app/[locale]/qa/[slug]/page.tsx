@@ -34,6 +34,7 @@ export async function generateStaticParams() {
   const slugs = await sanityFetch<QuestionSlug[]>({
     query: ALL_QUESTION_SLUGS_QUERY,
     revalidate: 0,
+    fallback: [],
   });
   return slugs.flatMap((entry) => routing.locales.map((locale) => ({ locale, slug: entry.slug })));
 }
@@ -43,6 +44,7 @@ async function fetchQuestion(slug: string) {
     query: QUESTION_BY_SLUG_QUERY,
     params: { slug },
     tags: ['question', `question:${slug}`],
+    fallback: null,
   });
 }
 
