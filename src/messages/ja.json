@@ -289,6 +289,7 @@
       "subtitle": "全 {count} 件",
       "newButton": "新規投稿",
       "untitled": "(無題)",
+      "byMe": "自分",
       "empty": {
         "heading": "まだ投稿がありません",
         "body": "右上の「新規投稿」から最初の記事を書いてみましょう。"

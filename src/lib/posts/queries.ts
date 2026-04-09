@@ -41,7 +41,19 @@ export type PostListRow = Pick<
   'id' | 'board_slug' | 'slug' | 'title_ja' | 'title_ko' | 'status' | 'published_at' | 'updated_at'
 >;
 
-/** All posts authored by a given user, newest first. Used by /admin/posts. */
+/**
+ * List view shape that carries enough author context for the admin
+ * list page to show "by @other-operator" next to each row.
+ */
+export type AdminPostListRow = PostListRow & {
+  author: {
+    id: string;
+    nickname: string;
+    role: UserRole;
+  };
+};
+
+/** All posts authored by a given user, newest first. */
 export async function listPostsByAuthor(authorId: string): Promise<PostListRow[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -52,6 +64,79 @@ export async function listPostsByAuthor(authorId: string): Promise<PostListRow[]
     .limit(100);
   if (error) throw error;
   return (data ?? []) as PostListRow[];
+}
+
+/**
+ * Team-wide post list for the admin dashboard. Used when the caller is
+ * admin or operator and should see everyone's drafts + published posts
+ * across every article board. Returns the same shape as the per-author
+ * query plus the author's nickname + role so the list can show a "by
+ * @someone" column without a second lookup on the client.
+ *
+ * Two-step (posts → profiles batch) to avoid PostgREST embedded FK
+ * flakiness, same as the other reader queries.
+ */
+export async function listAllAdminPosts(): Promise<AdminPostListRow[]> {
+  const supabase = await createClient();
+  const { data: postRows, error: postsError } = await supabase
+    .from('posts')
+    .select('id, board_slug, slug, title_ja, title_ko, status, published_at, updated_at, author_id')
+    .order('updated_at', { ascending: false })
+    .limit(200);
+  if (postsError) {
+    console.error('[listAllAdminPosts] posts query failed', postsError);
+    throw postsError;
+  }
+
+  const rows = (postRows ?? []) as Array<{
+    id: string;
+    board_slug: string;
+    slug: string;
+    title_ja: string | null;
+    title_ko: string | null;
+    status: PostStatus;
+    published_at: string | null;
+    updated_at: string;
+    author_id: string;
+  }>;
+  if (rows.length === 0) return [];
+
+  const authorIds = Array.from(new Set(rows.map((r) => r.author_id)));
+  const { data: profileRows, error: profileError } = await supabase
+    .from('profiles')
+    .select('id, nickname, role')
+    .in('id', authorIds);
+  if (profileError) {
+    console.error('[listAllAdminPosts] profiles batch failed', profileError);
+    throw profileError;
+  }
+
+  const profileById = new Map(
+    (profileRows ?? []).map((p) => [
+      p.id as string,
+      {
+        id: p.id as string,
+        nickname: p.nickname as string,
+        role: p.role as UserRole,
+      },
+    ]),
+  );
+
+  return rows.map((r) => ({
+    id: r.id,
+    board_slug: r.board_slug,
+    slug: r.slug,
+    title_ja: r.title_ja,
+    title_ko: r.title_ko,
+    status: r.status,
+    published_at: r.published_at,
+    updated_at: r.updated_at,
+    author: profileById.get(r.author_id) ?? {
+      id: r.author_id,
+      nickname: '???',
+      role: 'member' as UserRole,
+    },
+  }));
 }
 
 /** Single post by id, including body jsonb. Returns null if not found. */
