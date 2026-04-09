@@ -69,6 +69,9 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 | #37    | docs(ops): runbook for Sanity revalidate webhook registration        |
 | #38    | docs(ops): editor-facing content authoring guide for Studio          |
 | #39    | feat(sns): Bluesky auto-syndication + adapter scaffold for X/IG/LINE |
+| #40    | feat(sns): full X (Twitter) v2 adapter with OAuth 1.0a signer        |
+| #41    | chore(seo): hardcode GSC verification token                          |
+| #42    | ci(lighthouse): add LHCI workflow with perf/a11y/seo assertions      |
 
 ## 누적 통계 (2일)
 
