@@ -41,6 +41,10 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: next-intl
         update-types: ['version-update:semver-major']
+      # @types/node tracks the Node runtime in .nvmrc (Node 20). Major
+      # bumps would diverge from the actual runtime — pin to 20.x line.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
 
   # GitHub Actions — pin tags so the CI workflow doesn't silently drift.
   - package-ecosystem: github-actions
