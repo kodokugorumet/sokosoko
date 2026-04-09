@@ -333,6 +333,30 @@ export async function getQuestionBySlug(slug: string): Promise<QuestionDetailRow
       throw error;
     }
     if (data) {
+      // Log non-raw matches so we know which transformation actually won
+      // and can retire the fallback machinery in a follow-up PR. The raw
+      // case (candidate === slug) stays silent because that's the
+      // expected happy path.
+      if (candidate !== slug) {
+        console.warn('[getQuestionBySlug] matched via non-raw candidate', {
+          incoming_slug: slug,
+          winning_candidate: candidate,
+          incoming_code_points: Array.from(slug).map((c) => c.codePointAt(0)?.toString(16)),
+          winning_code_points: Array.from(candidate).map((c) => c.codePointAt(0)?.toString(16)),
+          // Which transformation is this? Caller can grep for
+          // "decoded"/"nfc"/"nfd" in the message body.
+          probable_transform: (() => {
+            try {
+              if (decodeURIComponent(slug) === candidate) return 'decodeURIComponent';
+            } catch {
+              /* ignore */
+            }
+            if (slug.normalize('NFC') === candidate) return 'normalize-NFC';
+            if (slug.normalize('NFD') === candidate) return 'normalize-NFD';
+            return 'unknown';
+          })(),
+        });
+      }
       post = data as PostProjection;
       break;
     }

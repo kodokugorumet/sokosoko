@@ -1,7 +1,12 @@
 import { generateHTML } from '@tiptap/html';
 import { StarterKit } from '@tiptap/starter-kit';
-import { Link } from '@tiptap/extension-link';
 import type { JSONContent } from '@tiptap/core';
+
+// `@tiptap/starter-kit` v3 ships the Link extension by default, so we
+// configure it via StarterKit's `link` option instead of importing
+// `@tiptap/extension-link` separately. Adding it twice would warn at
+// runtime ("Duplicate extension names found: ['link']") and could
+// silently double-apply marks during HTML serialisation.
 
 /**
  * Server-side renderer for TipTap JSON documents. Uses the exact same
@@ -18,13 +23,13 @@ import type { JSONContent } from '@tiptap/core';
 const EXTENSIONS = [
   StarterKit.configure({
     heading: { levels: [2, 3] },
-  }),
-  Link.configure({
-    openOnClick: false,
-    autolink: true,
-    HTMLAttributes: {
-      rel: 'noopener noreferrer',
-      target: '_blank',
+    link: {
+      openOnClick: false,
+      autolink: true,
+      HTMLAttributes: {
+        rel: 'noopener noreferrer',
+        target: '_blank',
+      },
     },
   }),
 ];
