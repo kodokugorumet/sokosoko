@@ -111,12 +111,26 @@ export async function getPublicPostById(id: string): Promise<PublicPostRow | nul
   }
   if (!authorRow) return null;
 
-  // Drop author_id from the public shape; the caller wants a nested
-  // `author` object instead. Cast widened from the select shape.
-  const { author_id: _authorId, ...rest } = post as AdminPostRow & { author_id: string };
-  void _authorId;
+  // Build the public shape explicitly. `author_id` is in the select
+  // projection (we need it to look up the profile) but not in the
+  // returned type; the cleanest way to strip it is to list the fields
+  // we actually want instead of fighting TypeScript's destructuring.
+  const p = post as AdminPostRow & { author_id: string };
   return {
-    ...(rest as AdminPostRow),
+    id: p.id,
+    board_slug: p.board_slug,
+    slug: p.slug,
+    title_ja: p.title_ja,
+    title_ko: p.title_ko,
+    excerpt_ja: p.excerpt_ja,
+    excerpt_ko: p.excerpt_ko,
+    body_ja: p.body_ja,
+    body_ko: p.body_ko,
+    cover_image_url: p.cover_image_url,
+    status: p.status,
+    published_at: p.published_at,
+    updated_at: p.updated_at,
+    created_at: p.created_at,
     author: {
       nickname: authorRow.nickname,
       role: authorRow.role as PublicPostRow['author']['role'],
@@ -300,10 +314,22 @@ export async function getQuestionBySlug(slug: string): Promise<QuestionDetailRow
   }
   if (!authorRow) return null;
 
-  const { author_id: _authorId, ...rest } = post as AdminPostRow & { author_id: string };
-  void _authorId;
+  const p = post as AdminPostRow & { author_id: string };
   return {
-    ...(rest as AdminPostRow),
+    id: p.id,
+    board_slug: p.board_slug,
+    slug: p.slug,
+    title_ja: p.title_ja,
+    title_ko: p.title_ko,
+    excerpt_ja: p.excerpt_ja,
+    excerpt_ko: p.excerpt_ko,
+    body_ja: p.body_ja,
+    body_ko: p.body_ko,
+    cover_image_url: p.cover_image_url,
+    status: p.status,
+    published_at: p.published_at,
+    updated_at: p.updated_at,
+    created_at: p.created_at,
     author: {
       nickname: authorRow.nickname,
       role: authorRow.role as PublicPostRow['author']['role'],
