@@ -24,7 +24,7 @@
 | NFR-SEO-04 | 기사 Article + BreadcrumbList JSON-LD  | `[slug]/page.tsx`                         | ✅     |
 | NFR-SEO-05 | OG/Twitter (article type, large_image) | per-post                                  | ✅     |
 | NFR-SEO-06 | canonical URL                          | metadata.alternates.canonical             | ✅     |
-| NFR-SEO-07 | Q&A 페이지 QAPage JSON-LD              | `qa/[slug]`                               | ⏳     |
+| NFR-SEO-07 | Q&A 페이지 QAPage JSON-LD              | `qa/[slug]/page.tsx`                      | ✅     |
 | NFR-SEO-08 | Google Search Console 검증             | meta verification                         | 미착수 |
 
 ## 3. 다국어 / 접근성
