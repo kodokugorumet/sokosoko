@@ -344,11 +344,13 @@
   },
   "Comments": {
     "heading": "댓글 ({count})",
+    "headingCompact": "답글 ({count})",
     "empty": "아직 댓글이 없어요. 첫 댓글을 남겨보세요.",
     "loginPrompt": "댓글을 작성하려면 로그인해 주세요.",
     "form": {
       "label": "댓글",
       "placeholder": "글에 대한 감상이나 보충 설명을 남겨주세요 (최대 2000자)",
+      "placeholderCompact": "답글을 작성하세요…",
       "submit": "작성하기",
       "submitting": "보내는 중…",
       "error": {
