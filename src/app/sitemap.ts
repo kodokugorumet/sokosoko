@@ -1,15 +1,14 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
-import { sanityFetch } from '../../sanity/lib/fetch';
-import { ALL_POST_SLUGS_QUERY, type PostSlug, type Pillar } from '../../sanity/lib/queries';
-import { listAllQuestionSlugs } from '@/lib/posts/queries';
+import { listAllPublishedPostSlugs, listAllQuestionSlugs } from '@/lib/posts/queries';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
 
 // Static paths that always exist for every locale.
 const STATIC_PATHS = ['', '/about', '/contact', '/qa'] as const;
-// Pillar index pages — these exist regardless of post count; empty-state
-// handles the "no posts yet" case but the URL is still canonical.
-const PILLAR_PATHS: ReadonlyArray<`/${Pillar}`> = ['/life', '/study', '/trip'];
+// Article board index pages — these exist regardless of post count;
+// empty-state handles the "no posts yet" case but the URL is still
+// canonical and worth indexing.
+const PILLAR_PATHS = ['/life', '/study', '/trip'] as const;
 
 const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
@@ -29,18 +28,22 @@ function alternatesFor(path: string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  // Posts still come from Sanity until Phase 2-F; questions have already
-  // moved to Supabase (Phase 2-D). When Supabase env vars are missing
-  // (CI builds with dummy config) the question fetch is skipped entirely
-  // rather than throwing.
-  const [posts, questions] = await Promise.all([
-    sanityFetch<PostSlug[]>({
-      query: ALL_POST_SLUGS_QUERY,
-      tags: ['post', 'sitemap'],
-      fallback: [],
-    }),
-    isSupabaseConfigured() ? listAllQuestionSlugs().catch(() => []) : Promise.resolve([]),
-  ]);
+  // Both post and question lists come from Supabase now. When Supabase
+  // env vars are missing (CI builds with dummy config) the calls are
+  // skipped entirely rather than throwing, and the sitemap still lists
+  // every static + pillar path so crawlers have something to chew on.
+  const [posts, questions] = isSupabaseConfigured()
+    ? await Promise.all([
+        listAllPublishedPostSlugs().catch((err) => {
+          console.error('[sitemap] listAllPublishedPostSlugs failed', err);
+          return [];
+        }),
+        listAllQuestionSlugs().catch((err) => {
+          console.error('[sitemap] listAllQuestionSlugs failed', err);
+          return [];
+        }),
+      ])
+    : [[], []];
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.flatMap((path) =>
     routing.locales.map((locale) => ({
@@ -63,14 +66,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const postEntries: MetadataRoute.Sitemap = posts.flatMap((post) => {
-    // Drop posts whose category has no pillar (should be impossible given
-    // the schema's required radio, but better than emitting a bad URL).
-    if (!post.pillar || !post.slug) return [];
-    const path = `/${post.pillar}/${post.slug}`;
-    const lastMod = post._updatedAt ?? post.publishedAt;
+    // Skip non-article boards (the 'qa' board has its own entry list below)
+    // and anything missing a slug / board so we never emit a bad URL.
+    if (!post.board_slug || !post.slug) return [];
+    if (post.board_slug === 'qa') return [];
+    const path = `/${post.board_slug}/${encodeURIComponent(post.slug)}`;
     return routing.locales.map((locale) => ({
       url: urlFor(locale, path),
-      lastModified: lastMod ? new Date(lastMod) : now,
+      lastModified: post.updated_at ? new Date(post.updated_at) : now,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
       alternates: alternatesFor(path),
@@ -79,7 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const questionEntries: MetadataRoute.Sitemap = questions.flatMap((q) => {
     if (!q.slug) return [];
-    const path = `/qa/${q.slug}`;
+    const path = `/qa/${encodeURIComponent(q.slug)}`;
     const lastMod = q.updated_at ?? q.published_at;
     return routing.locales.map((locale) => ({
       url: urlFor(locale, path),

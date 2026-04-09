@@ -159,6 +159,446 @@ export async function listBoards(): Promise<BoardRow[]> {
 }
 
 // ---------------------------------------------------------------------------
+// Public article board helpers — life/study/trip and any future article
+// board uses these. Q&A (`kind='qa'`) has its own helpers below because
+// the reader chrome is different (question list vs card grid).
+// ---------------------------------------------------------------------------
+
+/** List card — lighter payload for the board index grid. */
+export type PublicPostCardRow = {
+  id: string;
+  board_slug: string;
+  slug: string;
+  title_ja: string | null;
+  title_ko: string | null;
+  excerpt_ja: string | null;
+  excerpt_ko: string | null;
+  cover_image_url: string | null;
+  published_at: string | null;
+  created_at: string;
+  author: {
+    nickname: string;
+    role: UserRole;
+  };
+};
+
+/**
+ * All published posts for a given article board, newest first. Two-step
+ * (posts → profiles batch) for the same reason every other public query
+ * in this file is — see `getPublicPostById` for the backstory.
+ */
+export async function listPublishedPostsByBoard(boardSlug: string): Promise<PublicPostCardRow[]> {
+  const supabase = await createClient();
+  const { data: postRows, error: postsError } = await supabase
+    .from('posts')
+    .select(
+      'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, cover_image_url, published_at, created_at, author_id',
+    )
+    .eq('board_slug', boardSlug)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+    .limit(100);
+  if (postsError) {
+    console.error('[listPublishedPostsByBoard] posts query failed', { boardSlug, postsError });
+    throw postsError;
+  }
+
+  const posts = (postRows ?? []) as Array<{
+    id: string;
+    board_slug: string;
+    slug: string;
+    title_ja: string | null;
+    title_ko: string | null;
+    excerpt_ja: string | null;
+    excerpt_ko: string | null;
+    cover_image_url: string | null;
+    published_at: string | null;
+    created_at: string;
+    author_id: string;
+  }>;
+  if (posts.length === 0) return [];
+
+  const authorIds = Array.from(new Set(posts.map((p) => p.author_id)));
+  const { data: profileRows, error: profileError } = await supabase
+    .from('profiles')
+    .select('id, nickname, role')
+    .in('id', authorIds);
+  if (profileError) {
+    console.error('[listPublishedPostsByBoard] profiles batch failed', profileError);
+    throw profileError;
+  }
+
+  const profileById = new Map(
+    (profileRows ?? []).map((p) => [
+      p.id as string,
+      { nickname: p.nickname as string, role: p.role as UserRole },
+    ]),
+  );
+
+  return posts.map((p) => ({
+    id: p.id,
+    board_slug: p.board_slug,
+    slug: p.slug,
+    title_ja: p.title_ja,
+    title_ko: p.title_ko,
+    excerpt_ja: p.excerpt_ja,
+    excerpt_ko: p.excerpt_ko,
+    cover_image_url: p.cover_image_url,
+    published_at: p.published_at,
+    created_at: p.created_at,
+    author: profileById.get(p.author_id) ?? { nickname: '???', role: 'member' as UserRole },
+  }));
+}
+
+/**
+ * Latest published posts grouped by board slug — one query, then
+ * client-side grouping. Used by the home page's 3-pillar grid. Pulls
+ * more rows than strictly needed and trims per board so we don't do
+ * three separate round-trips.
+ */
+export async function listLatestPerBoard(
+  boardSlugs: string[],
+  perBoard: number,
+): Promise<Record<string, PublicPostCardRow[]>> {
+  const supabase = await createClient();
+  const { data: postRows, error: postsError } = await supabase
+    .from('posts')
+    .select(
+      'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, cover_image_url, published_at, created_at, author_id',
+    )
+    .in('board_slug', boardSlugs)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+    // Over-fetch so each board has a fair shot even when one board
+    // dominates recent publishing.
+    .limit(boardSlugs.length * perBoard * 4);
+  if (postsError) {
+    console.error('[listLatestPerBoard] posts query failed', { boardSlugs, postsError });
+    throw postsError;
+  }
+
+  const posts = (postRows ?? []) as Array<{
+    id: string;
+    board_slug: string;
+    slug: string;
+    title_ja: string | null;
+    title_ko: string | null;
+    excerpt_ja: string | null;
+    excerpt_ko: string | null;
+    cover_image_url: string | null;
+    published_at: string | null;
+    created_at: string;
+    author_id: string;
+  }>;
+
+  const authorIds = Array.from(new Set(posts.map((p) => p.author_id)));
+  let profileById: Map<string, { nickname: string; role: UserRole }> = new Map();
+  if (authorIds.length > 0) {
+    const { data: profileRows, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, nickname, role')
+      .in('id', authorIds);
+    if (profileError) {
+      console.error('[listLatestPerBoard] profiles batch failed', profileError);
+      throw profileError;
+    }
+    profileById = new Map(
+      (profileRows ?? []).map((p) => [
+        p.id as string,
+        { nickname: p.nickname as string, role: p.role as UserRole },
+      ]),
+    );
+  }
+
+  // Initialise every requested board with an empty array so callers can
+  // rely on every key being present regardless of data.
+  const grouped: Record<string, PublicPostCardRow[]> = {};
+  for (const slug of boardSlugs) grouped[slug] = [];
+
+  for (const p of posts) {
+    const bucket = grouped[p.board_slug];
+    if (!bucket || bucket.length >= perBoard) continue;
+    bucket.push({
+      id: p.id,
+      board_slug: p.board_slug,
+      slug: p.slug,
+      title_ja: p.title_ja,
+      title_ko: p.title_ko,
+      excerpt_ja: p.excerpt_ja,
+      excerpt_ko: p.excerpt_ko,
+      cover_image_url: p.cover_image_url,
+      published_at: p.published_at,
+      created_at: p.created_at,
+      author: profileById.get(p.author_id) ?? { nickname: '???', role: 'member' as UserRole },
+    });
+  }
+
+  return grouped;
+}
+
+/**
+ * Public board + slug detail query. Used by `/[board]/[slug]` pages.
+ * Same two-step pattern as `getPublicPostById` but keyed by the
+ * (board_slug, slug) unique index so URLs stay stable across content
+ * lifecycle (unlike UUID-based URLs which expose the internal id).
+ *
+ * Handles the NFC / decodeURIComponent issue the Q&A slug lookup ran
+ * into: Next.js 16 hands `params.slug` to Server Components exactly as
+ * it appears in the URL, so non-ASCII slugs need decoding first.
+ */
+export async function getPublicPostByBoardSlug(
+  boardSlug: string,
+  slug: string,
+): Promise<PublicPostRow | null> {
+  const supabase = await createClient();
+
+  let decoded = slug;
+  try {
+    decoded = decodeURIComponent(slug);
+  } catch {
+    /* malformed — use raw, will likely 404 */
+  }
+
+  const { data: post, error: postError } = await supabase
+    .from('posts')
+    .select(
+      'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at, author_id',
+    )
+    .eq('board_slug', boardSlug)
+    .eq('slug', decoded)
+    .eq('status', 'published')
+    .maybeSingle();
+  if (postError) {
+    console.error('[getPublicPostByBoardSlug] post query failed', {
+      boardSlug,
+      slug,
+      decoded,
+      postError,
+    });
+    throw postError;
+  }
+  if (!post) return null;
+
+  const { data: authorRow, error: authorError } = await supabase
+    .from('profiles')
+    .select('nickname, role')
+    .eq('id', (post as { author_id: string }).author_id)
+    .maybeSingle();
+  if (authorError) {
+    console.error('[getPublicPostByBoardSlug] author query failed', authorError);
+    throw authorError;
+  }
+  if (!authorRow) return null;
+
+  const p = post as AdminPostRow & { author_id: string };
+  return {
+    id: p.id,
+    board_slug: p.board_slug,
+    slug: p.slug,
+    title_ja: p.title_ja,
+    title_ko: p.title_ko,
+    excerpt_ja: p.excerpt_ja,
+    excerpt_ko: p.excerpt_ko,
+    body_ja: p.body_ja,
+    body_ko: p.body_ko,
+    cover_image_url: p.cover_image_url,
+    status: p.status,
+    published_at: p.published_at,
+    updated_at: p.updated_at,
+    created_at: p.created_at,
+    author: {
+      nickname: authorRow.nickname,
+      role: authorRow.role as PublicPostRow['author']['role'],
+    },
+  };
+}
+
+/**
+ * Every (board_slug, slug) pair for published posts — used by sitemap
+ * generation and static param generation. Cheap: one indexed query,
+ * no joins.
+ */
+export type PublicPostSlug = {
+  board_slug: string;
+  slug: string;
+  updated_at: string;
+};
+
+export async function listAllPublishedPostSlugs(): Promise<PublicPostSlug[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('posts')
+    .select('board_slug, slug, updated_at')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+  if (error) {
+    console.error('[listAllPublishedPostSlugs] query failed', error);
+    throw error;
+  }
+  return (data ?? []) as PublicPostSlug[];
+}
+
+/**
+ * Full-text search across published posts for the /search page. Matches
+ * the title and excerpt fields in both locales, ordered by most recent.
+ * GROQ's `match` used to handle this in the Sanity era; Postgres `ilike`
+ * with a multi-column `or` is the direct equivalent.
+ */
+export async function searchPublishedPosts(query: string): Promise<PublicPostCardRow[]> {
+  const trimmed = query.trim();
+  if (trimmed.length === 0) return [];
+
+  const supabase = await createClient();
+  const like = `%${trimmed.replace(/[%_]/g, (c) => `\\${c}`)}%`;
+  const { data: postRows, error: postsError } = await supabase
+    .from('posts')
+    .select(
+      'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, cover_image_url, published_at, created_at, author_id',
+    )
+    .eq('status', 'published')
+    .neq('board_slug', 'qa') // Q&A has its own search
+    .or(
+      `title_ja.ilike.${like},title_ko.ilike.${like},excerpt_ja.ilike.${like},excerpt_ko.ilike.${like}`,
+    )
+    .order('published_at', { ascending: false })
+    .limit(50);
+  if (postsError) {
+    console.error('[searchPublishedPosts] posts query failed', postsError);
+    throw postsError;
+  }
+
+  const posts = (postRows ?? []) as Array<{
+    id: string;
+    board_slug: string;
+    slug: string;
+    title_ja: string | null;
+    title_ko: string | null;
+    excerpt_ja: string | null;
+    excerpt_ko: string | null;
+    cover_image_url: string | null;
+    published_at: string | null;
+    created_at: string;
+    author_id: string;
+  }>;
+  if (posts.length === 0) return [];
+
+  const authorIds = Array.from(new Set(posts.map((p) => p.author_id)));
+  const { data: profileRows, error: profileError } = await supabase
+    .from('profiles')
+    .select('id, nickname, role')
+    .in('id', authorIds);
+  if (profileError) {
+    console.error('[searchPublishedPosts] profiles batch failed', profileError);
+    throw profileError;
+  }
+
+  const profileById = new Map(
+    (profileRows ?? []).map((p) => [
+      p.id as string,
+      { nickname: p.nickname as string, role: p.role as UserRole },
+    ]),
+  );
+
+  return posts.map((p) => ({
+    id: p.id,
+    board_slug: p.board_slug,
+    slug: p.slug,
+    title_ja: p.title_ja,
+    title_ko: p.title_ko,
+    excerpt_ja: p.excerpt_ja,
+    excerpt_ko: p.excerpt_ko,
+    cover_image_url: p.cover_image_url,
+    published_at: p.published_at,
+    created_at: p.created_at,
+    author: profileById.get(p.author_id) ?? { nickname: '???', role: 'member' as UserRole },
+  }));
+}
+
+/**
+ * Full-text search across published Q&A questions. Separate from
+ * `searchPublishedPosts` because the reader UI groups posts and
+ * questions into distinct sections of the results page.
+ */
+export async function searchPublishedQuestions(query: string): Promise<QuestionListRow[]> {
+  const trimmed = query.trim();
+  if (trimmed.length === 0) return [];
+
+  const supabase = await createClient();
+  const like = `%${trimmed.replace(/[%_]/g, (c) => `\\${c}`)}%`;
+  const { data: postRows, error: postsError } = await supabase
+    .from('posts')
+    .select(
+      'id, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, published_at, created_at, author_id',
+    )
+    .eq('board_slug', 'qa')
+    .eq('status', 'published')
+    .or(
+      `title_ja.ilike.${like},title_ko.ilike.${like},excerpt_ja.ilike.${like},excerpt_ko.ilike.${like}`,
+    )
+    .order('published_at', { ascending: false })
+    .limit(50);
+  if (postsError) {
+    console.error('[searchPublishedQuestions] posts query failed', postsError);
+    throw postsError;
+  }
+
+  const posts = (postRows ?? []) as Array<{
+    id: string;
+    slug: string;
+    title_ja: string | null;
+    title_ko: string | null;
+    excerpt_ja: string | null;
+    excerpt_ko: string | null;
+    published_at: string | null;
+    created_at: string;
+    author_id: string;
+  }>;
+  if (posts.length === 0) return [];
+
+  const authorIds = Array.from(new Set(posts.map((p) => p.author_id)));
+  const questionIds = posts.map((p) => p.id);
+
+  const [profilesRes, answersRes] = await Promise.all([
+    supabase.from('profiles').select('id, nickname, role').in('id', authorIds),
+    supabase.from('answers').select('question_id').in('question_id', questionIds),
+  ]);
+
+  if (profilesRes.error) {
+    console.error('[searchPublishedQuestions] profiles batch failed', profilesRes.error);
+    throw profilesRes.error;
+  }
+  if (answersRes.error) {
+    console.error('[searchPublishedQuestions] answers batch failed', answersRes.error);
+    throw answersRes.error;
+  }
+
+  const profileById = new Map(
+    (profilesRes.data ?? []).map((p) => [
+      p.id as string,
+      { nickname: p.nickname as string, role: p.role as UserRole },
+    ]),
+  );
+  const answerCountById = new Map<string, number>();
+  for (const row of answersRes.data ?? []) {
+    const qId = (row as { question_id: string }).question_id;
+    answerCountById.set(qId, (answerCountById.get(qId) ?? 0) + 1);
+  }
+
+  return posts.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title_ja: p.title_ja,
+    title_ko: p.title_ko,
+    excerpt_ja: p.excerpt_ja,
+    excerpt_ko: p.excerpt_ko,
+    published_at: p.published_at,
+    created_at: p.created_at,
+    author: profileById.get(p.author_id) ?? { nickname: '???', role: 'member' as UserRole },
+    answer_count: answerCountById.get(p.id) ?? 0,
+  }));
+}
+
+// ---------------------------------------------------------------------------
 // Q&A helpers — questions live in the `posts` table under board_slug='qa'.
 // Answers live in the separate `answers` table keyed by question_id → posts.id.
 // ---------------------------------------------------------------------------

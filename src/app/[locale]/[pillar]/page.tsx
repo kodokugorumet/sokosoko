@@ -3,16 +3,13 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { PostCard } from '@/components/post/PostCard';
-import { sanityFetch } from '../../../../sanity/lib/fetch';
-import {
-  POSTS_BY_PILLAR_QUERY,
-  type PostCard as PostCardType,
-  type Pillar,
-} from '../../../../sanity/lib/queries';
+import { SupabasePostCard } from '@/components/post/SupabasePostCard';
+import { listPublishedPostsByBoard } from '@/lib/posts/queries';
 
-export const revalidate = 3600;
-
+// Article pillars supported at this URL. The Supabase `boards` table has
+// a row per pillar too, but hard-coding the valid set here keeps 404s
+// fast (no DB round-trip to validate the route segment) and matches the
+// i18n message namespace which is compile-time.
 const PILLARS = ['life', 'study', 'trip'] as const;
 type PillarSlug = (typeof PILLARS)[number];
 
@@ -23,7 +20,6 @@ function isPillar(value: string): value is PillarSlug {
 type Params = { locale: string; pillar: string };
 
 export function generateStaticParams() {
-  // 2 locales × 3 pillars = 6 routes
   return routing.locales.flatMap((locale) => PILLARS.map((pillar) => ({ locale, pillar })));
 }
 
@@ -44,11 +40,9 @@ export default async function PillarPage({ params }: { params: Promise<Params> }
 
   const t = await getTranslations('Pillar');
 
-  const posts = await sanityFetch<PostCardType[]>({
-    query: POSTS_BY_PILLAR_QUERY,
-    params: { pillar: pillar satisfies Pillar },
-    tags: ['post', `pillar:${pillar}`],
-    fallback: [],
+  const posts = await listPublishedPostsByBoard(pillar).catch((err) => {
+    console.error('[PillarPage] listPublishedPostsByBoard failed', { pillar, err });
+    return [];
   });
 
   return (
@@ -69,8 +63,8 @@ export default async function PillarPage({ params }: { params: Promise<Params> }
       ) : (
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
-            <li key={post._id}>
-              <PostCard post={post} locale={locale as 'ja' | 'ko'} />
+            <li key={post.id}>
+              <SupabasePostCard post={post} locale={locale as 'ja' | 'ko'} />
             </li>
           ))}
         </ul>
