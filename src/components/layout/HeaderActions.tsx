@@ -17,6 +17,21 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { SearchBox } from '@/components/search/SearchBox';
 import { LocaleSwitcher } from './LocaleSwitcher';
+import { signOut } from '@/lib/auth/actions';
+
+export type HeaderUser = {
+  id: string;
+  nickname: string;
+  role: 'member' | 'verified' | 'operator' | 'admin';
+  onboarded: boolean;
+};
+
+const ROLE_BADGE: Record<HeaderUser['role'], string> = {
+  admin: '👑',
+  operator: '🏅',
+  verified: '✅',
+  member: '',
+};
 
 /**
  * Client island for the header right side:
@@ -29,9 +44,10 @@ import { LocaleSwitcher } from './LocaleSwitcher';
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export function HeaderActions() {
+export function HeaderActions({ user }: { user: HeaderUser | null }) {
   const t = useTranslations('Header');
   const tMenu = useTranslations('Menu');
+  const tAuth = useTranslations('Auth');
   const [open, setOpen] = useState(false);
   // Anchor for restoring focus when the drawer closes — points to whatever
   // element opened it (the MENU button in the normal flow).
@@ -221,6 +237,39 @@ export function HeaderActions() {
           >
             ● {tMenu('about')}
           </Link>
+
+          {/* Auth block — visible on mobile (where the header pill is hidden)
+              and useful on desktop too as a single source of truth for the
+              session state. */}
+          <div className="mt-6 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+            {user ? (
+              <div className="flex flex-col gap-2">
+                <p className="truncate text-sm">
+                  <span className="text-zinc-500">{tAuth('header.signedInAs')}</span>{' '}
+                  <span className="font-medium text-[var(--ink)]">
+                    {ROLE_BADGE[user.role] ? `${ROLE_BADGE[user.role]} ` : ''}
+                    {user.nickname}
+                  </span>
+                </p>
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    className="hand-box w-full rounded-md px-3 py-2 text-xs font-medium hover:bg-[var(--accent-soft)]"
+                  >
+                    {tAuth('header.signOut')}
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                onClick={close}
+                className="hand-box block rounded-md px-3 py-2 text-center text-xs font-medium hover:bg-[var(--accent-soft)]"
+              >
+                {tAuth('header.signIn')}
+              </Link>
+            )}
+          </div>
         </nav>
 
         <div className="border-t border-zinc-200 px-6 py-5 dark:border-zinc-800">
@@ -272,16 +321,29 @@ export function HeaderActions() {
     <>
       <div className="flex shrink-0 items-center gap-2">
         <LocaleSwitcher />
-        {/* LOG IN is a placeholder until Phase 2 — hide on mobile to give
-            the brand wordmark room. Drawer footer still has Language. */}
-        <button
-          type="button"
-          onClick={() => alert(t('loginComingSoon'))}
-          className="hand-box hidden rounded-md px-3 py-1 text-xs font-medium tracking-wide whitespace-nowrap hover:bg-[var(--accent-soft)] sm:inline-flex"
-          aria-label={t('login')}
-        >
-          {t('login')}
-        </button>
+        {/* Auth pill: shows the nickname (with role badge) when signed in,
+            falls back to a LOG IN link otherwise. Hidden on mobile to give
+            the brand wordmark room — the drawer footer mirrors the same
+            controls so mobile users still have access. */}
+        {user ? (
+          <Link
+            href="/"
+            className="hand-box hidden max-w-[10rem] truncate rounded-md px-3 py-1 text-xs font-medium tracking-wide whitespace-nowrap hover:bg-[var(--accent-soft)] sm:inline-flex"
+            aria-label={user.nickname}
+            title={user.nickname}
+          >
+            {ROLE_BADGE[user.role] ? `${ROLE_BADGE[user.role]} ` : ''}
+            {user.nickname}
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className="hand-box hidden rounded-md px-3 py-1 text-xs font-medium tracking-wide whitespace-nowrap hover:bg-[var(--accent-soft)] sm:inline-flex"
+            aria-label={t('login')}
+          >
+            {t('login')}
+          </Link>
+        )}
         <button
           ref={triggerRef}
           type="button"

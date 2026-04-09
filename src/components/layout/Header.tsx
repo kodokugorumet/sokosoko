@@ -1,10 +1,37 @@
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { HeaderActions } from './HeaderActions';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
+import { HeaderActions, type HeaderUser } from './HeaderActions';
 
 export async function Header() {
   const t = await getTranslations('Brand');
+
+  // Read the current session server-side so the header chrome (LOG IN vs
+  // nickname pill) is correct on the very first paint, no client flicker.
+  // The query is fast (single row, indexed) and the result piggybacks on
+  // the same Supabase client the proxy already warmed up. Skipped entirely
+  // if Supabase env vars are missing (local dev / CI build).
+  let headerUser: HeaderUser | null = null;
+  if (isSupabaseConfigured()) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('nickname, role, onboarded')
+        .eq('id', user.id)
+        .maybeSingle();
+      headerUser = {
+        id: user.id,
+        nickname: profile?.nickname ?? user.email ?? '',
+        role: (profile?.role as HeaderUser['role']) ?? 'member',
+        onboarded: profile?.onboarded ?? false,
+      };
+    }
+  }
 
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-200/60 bg-[var(--background)]/90 backdrop-blur dark:border-zinc-800/60">
@@ -28,7 +55,7 @@ export async function Header() {
             {t('name')}
           </span>
         </Link>
-        <HeaderActions />
+        <HeaderActions user={headerUser} />
       </div>
     </header>
   );
