@@ -42,14 +42,14 @@
 
 ## 4. 보안 (Security)
 
-| ID         | 항목                      | 정책                                    | 상태   |
-| ---------- | ------------------------- | --------------------------------------- | ------ |
-| NFR-SEC-01 | Sanity 토큰 노출 금지     | `NEXT_PUBLIC_*` 외에는 server only      | ✅     |
-| NFR-SEC-02 | revalidate 웹훅 HMAC 검증 | `@sanity/webhook` `parseBody`           | ✅     |
-| NFR-SEC-03 | XSS 방어                  | PortableText 화이트리스트 + Next escape | ✅     |
-| NFR-SEC-04 | CSRF                      | 폼 미존재 (Phase 1 read-only)           | N/A    |
-| NFR-SEC-05 | secrets 관리              | `.env.local` + Vercel env vars          | ✅     |
-| NFR-SEC-06 | dependency 취약점 스캔    | Dependabot                              | 미설정 |
+| ID         | 항목                      | 정책                                    | 상태 |
+| ---------- | ------------------------- | --------------------------------------- | ---- |
+| NFR-SEC-01 | Sanity 토큰 노출 금지     | `NEXT_PUBLIC_*` 외에는 server only      | ✅   |
+| NFR-SEC-02 | revalidate 웹훅 HMAC 검증 | `@sanity/webhook` `parseBody`           | ✅   |
+| NFR-SEC-03 | XSS 방어                  | PortableText 화이트리스트 + Next escape | ✅   |
+| NFR-SEC-04 | CSRF                      | 폼 미존재 (Phase 1 read-only)           | N/A  |
+| NFR-SEC-05 | secrets 관리              | `.env.local` + Vercel env vars          | ✅   |
+| NFR-SEC-06 | dependency 취약점 스캔    | Dependabot (`.github/dependabot.yml`)   | ✅   |
 
 ## 5. 가용성 / 운영
 
