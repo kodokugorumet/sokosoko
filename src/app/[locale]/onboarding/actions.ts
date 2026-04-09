@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
 /**
@@ -47,5 +48,10 @@ export async function saveNickname(formData: FormData) {
     return { ok: false as const, error: error.message };
   }
 
+  // Invalidate every Server Component that read the profile row (Header,
+  // in particular) so the nickname and the 👑/🏅/✅ role badge reflect the
+  // new value on the next render instead of showing the `user_xxxxxxxx`
+  // placeholder from the initial signup.
+  revalidatePath('/', 'layout');
   redirect('/');
 }
