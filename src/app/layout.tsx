@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Noto_Sans_JP, Noto_Sans_KR, Klee_One, Gaegu } from 'next/font/google';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { getLocale } from 'next-intl/server';
 import './globals.css';
 
 // GA4 measurement ID is optional — when unset (local dev, preview
@@ -53,10 +54,16 @@ export const metadata: Metadata = {
   verification: { google: GOOGLE_SITE_VERIFICATION },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // `getLocale()` reads the locale that next-intl middleware resolved for
+  // this request (from the URL path, then cookie, then Accept-Language).
+  // Must be awaited here so `<html lang>` matches the actual content SEO-
+  // wise. Without this the root layout would hardcode `ja` and KO pages
+  // would serve Japanese content under `lang="ja"` — a silent a11y+SEO bug.
+  const locale = await getLocale();
   return (
     <html
-      lang="ja"
+      lang={locale}
       className={`${notoSansJP.variable} ${notoSansKR.variable} ${kleeOne.variable} ${gaegu.variable} h-full`}
     >
       <body className="flex min-h-full flex-col antialiased">{children}</body>
