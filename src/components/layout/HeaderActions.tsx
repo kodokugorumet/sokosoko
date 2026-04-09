@@ -195,12 +195,14 @@ export function HeaderActions() {
 
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <LocaleSwitcher />
+        {/* LOG IN is a placeholder until Phase 2 — hide on mobile to give
+            the brand wordmark room. Drawer footer still has Language. */}
         <button
           type="button"
           onClick={() => alert(t('loginComingSoon'))}
-          className="hand-box rounded-md px-3 py-1 text-xs font-medium tracking-wide hover:bg-[var(--accent-soft)]"
+          className="hand-box hidden rounded-md px-3 py-1 text-xs font-medium tracking-wide whitespace-nowrap hover:bg-[var(--accent-soft)] sm:inline-flex"
           aria-label={t('login')}
         >
           {t('login')}
@@ -210,7 +212,7 @@ export function HeaderActions() {
           onClick={() => setOpen(true)}
           aria-expanded={open}
           aria-controls="site-menu-drawer"
-          className="hand-box rounded-md px-3 py-1 text-xs font-medium tracking-wide hover:bg-[var(--accent-soft)]"
+          className="hand-box rounded-md px-3 py-1 text-xs font-medium tracking-wide whitespace-nowrap hover:bg-[var(--accent-soft)]"
         >
           {t('menu')}
         </button>
