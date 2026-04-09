@@ -36,6 +36,7 @@
 | F-PAGE-13 | `/[locale]/not-found`       | 404 손글씨 페이지                                | Static    | ✅   |
 | F-PAGE-14 | `/[locale]/loading`         | route loading skeleton                           | Static    | ✅   |
 | F-PAGE-15 | `/[locale]/error`           | error boundary (reset)                           | Client    | ✅   |
+| F-PAGE-16 | `/[locale]/search`          | 사이트 검색 (post + Q&A, GROQ `match`, noindex)  | Dynamic   | ✅   |
 
 ## 3. 컴포넌트 / 글로벌
 
