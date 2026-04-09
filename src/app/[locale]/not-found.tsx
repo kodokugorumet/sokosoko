@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
@@ -10,9 +11,28 @@ import { Link } from '@/i18n/navigation';
  * render in whatever next-intl's default locale is (ko in our routing
  * config) regardless of the URL.
  *
+ * KNOWN LIMITATION: the HTTP status on this page is currently 200 in
+ * production, not 404, because of a well-documented interaction
+ * between next-intl's middleware and Next.js 16 App Router streaming.
+ * When any middleware returns `NextResponse.next()` (which next-intl
+ * does for every page route), the response status is locked to 200
+ * before the page Server Component has a chance to throw notFound().
+ * See: https://github.com/vercel/next.js/discussions/76501
+ *
+ * Because the status is wrong, we mark the page `robots: noindex` so
+ * Google doesn't index the 200-with-404-body as a duplicate of the
+ * real page. Readers still see the right content; crawlers are told
+ * via meta that this isn't a real page. When Next.js or next-intl
+ * upstream fix the status issue this metadata can stay — noindex on a
+ * 404 is correct either way.
+ *
  * Next.js falls back to the root `/not-found.tsx` when this file isn't
  * matched (e.g. non-locale paths like `/api/*`).
  */
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
+
 export default async function LocaleNotFound() {
   const locale = await getLocale();
   const t = await getTranslations({ locale, namespace: 'NotFound' });
