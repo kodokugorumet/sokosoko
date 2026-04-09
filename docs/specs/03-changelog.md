@@ -65,6 +65,7 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 | #30    | chore(deps): bump Next.js 16.2.3 (CVE-2026-23869) + runtime group |
 | #34    | chore(ci): pin Dependabot ignore for @types/node major bumps      |
 | #35    | feat(search): site-wide search across posts & questions           |
+| #36    | feat(seo): GSC verification meta + GA4 (env-driven, optional)     |
 
 ## 누적 통계 (2일)
 
@@ -80,7 +81,7 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 ## Phase 1 진행도 (체감)
 
 - **콘텐츠 모델 / 라우트** — ✅ 100% (Q&A · 검색 모두 도입)
-- **SEO** — ✅ 90% (GSC 등록 잔여)
+- **SEO** — ✅ 95% (GSC 콘솔 등록 후 운영자가 토큰을 Vercel env 에 입력하면 완료)
 - **운영 자동화** — ⏳ 60% (Sanity 웹훅 Studio 등록 미완)
 - **SNS 자동 송출** — ⏸ 0% (Phase 1 후반)
 - **시드 콘텐츠 10편** — ⏸ 운영진 작성 대기
