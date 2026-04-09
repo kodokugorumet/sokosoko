@@ -281,22 +281,124 @@ export async function listPublishedQuestions(): Promise<QuestionListRow[]> {
  * Returns null if not found or still a draft; RLS enforces the status
  * check but we double-filter here so a missing row renders as a clean
  * 404 instead of bubbling an RLS error up to the error boundary.
+ *
+ * Slug lookup is defensive:
+ *  1. Try the raw incoming string.
+ *  2. Try `decodeURIComponent` in case Next.js didn't auto-decode (this
+ *     happens on some combinations of middleware + RSC payload routing).
+ *  3. Try NFC / NFD normalisation of the incoming string — Vercel's edge
+ *     occasionally reshapes Hangul between composed and decomposed forms
+ *     depending on how the client constructed the request.
+ *  4. Last resort: fetch every published qa row and compare with each
+ *     candidate in JS. Linear in the number of questions; at Phase 2
+ *     volumes this is under 100 rows so a full scan is cheap and
+ *     guarantees the reader never 404s on a row that exists.
+ * Whichever step finds the row wins; no-match still returns null.
  */
 export async function getQuestionBySlug(slug: string): Promise<QuestionDetailRow | null> {
   const supabase = await createClient();
-  const { data: post, error: postError } = await supabase
-    .from('posts')
-    .select(
-      'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at, author_id',
-    )
-    .eq('board_slug', 'qa')
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .maybeSingle();
-  if (postError) {
-    console.error('[getQuestionBySlug] post query failed', { slug, postError });
-    throw postError;
+
+  // Build the ordered list of slug candidates we're willing to try.
+  const candidates = new Set<string>();
+  candidates.add(slug);
+  try {
+    candidates.add(decodeURIComponent(slug));
+  } catch {
+    /* malformed percent-encoding — skip */
   }
+  for (const seed of Array.from(candidates)) {
+    try {
+      candidates.add(seed.normalize('NFC'));
+      candidates.add(seed.normalize('NFD'));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  type PostProjection = AdminPostRow & { author_id: string };
+  let post: PostProjection | null = null;
+
+  for (const candidate of candidates) {
+    const { data, error } = await supabase
+      .from('posts')
+      .select(
+        'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at, author_id',
+      )
+      .eq('board_slug', 'qa')
+      .eq('slug', candidate)
+      .eq('status', 'published')
+      .maybeSingle();
+    if (error) {
+      console.error('[getQuestionBySlug] post query failed', { slug, candidate, error });
+      throw error;
+    }
+    if (data) {
+      post = data as PostProjection;
+      break;
+    }
+  }
+
+  // Last-resort linear scan: fetch every published qa row and compare
+  // each candidate's NFC/NFD form against each stored slug's forms. This
+  // only runs when all direct lookups missed, so the cost is 1 extra
+  // query at most. Dumps the diagnostic trail to the function log so
+  // next time we can tighten the direct lookup instead of relying on
+  // this fallback.
+  if (!post) {
+    const { data: all, error: allError } = await supabase
+      .from('posts')
+      .select(
+        'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at, author_id',
+      )
+      .eq('board_slug', 'qa')
+      .eq('status', 'published');
+    if (allError) {
+      console.error('[getQuestionBySlug] fallback scan failed', { slug, allError });
+      throw allError;
+    }
+
+    const candidateForms = new Set<string>();
+    for (const c of candidates) {
+      candidateForms.add(c);
+      try {
+        candidateForms.add(c.normalize('NFC'));
+        candidateForms.add(c.normalize('NFD'));
+      } catch {
+        /* ignore */
+      }
+    }
+
+    const matched = (all ?? []).find((row) => {
+      const stored = (row as PostProjection).slug;
+      if (candidateForms.has(stored)) return true;
+      try {
+        if (candidateForms.has(stored.normalize('NFC'))) return true;
+        if (candidateForms.has(stored.normalize('NFD'))) return true;
+      } catch {
+        /* ignore */
+      }
+      return false;
+    });
+
+    if (matched) {
+      post = matched as PostProjection;
+      console.warn('[getQuestionBySlug] matched via fallback scan', {
+        incoming_slug: slug,
+        incoming_code_points: Array.from(slug).map((c) => c.codePointAt(0)?.toString(16)),
+        stored_slug: (matched as PostProjection).slug,
+        stored_code_points: Array.from((matched as PostProjection).slug).map((c) =>
+          c.codePointAt(0)?.toString(16),
+        ),
+      });
+    } else {
+      console.warn('[getQuestionBySlug] no match after fallback scan', {
+        slug,
+        candidates: Array.from(candidates),
+        stored_slugs: (all ?? []).map((r) => (r as PostProjection).slug),
+      });
+    }
+  }
+
   if (!post) return null;
 
   const { data: authorRow, error: authorError } = await supabase
