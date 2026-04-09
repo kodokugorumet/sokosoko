@@ -67,6 +67,7 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 | #35    | feat(search): site-wide search across posts & questions           |
 | #36    | feat(seo): GSC verification meta + GA4 (env-driven, optional)     |
 | #37    | docs(ops): runbook for Sanity revalidate webhook registration     |
+| #38    | docs(ops): editor-facing content authoring guide for Studio       |
 
 ## 누적 통계 (2일)
 
@@ -85,4 +86,4 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 - **SEO** — ✅ 95% (GSC 콘솔 등록 후 운영자가 토큰을 Vercel env 에 입력하면 완료)
 - **운영 자동화** — ⏳ 80% (웹훅 핸들러 + 등록 가이드 완료, 운영자가 Studio 에 등록하면 완료)
 - **SNS 자동 송출** — ⏸ 0% (Phase 1 후반)
-- **시드 콘텐츠 10편** — ⏸ 운영진 작성 대기
+- **시드 콘텐츠 10편** — ⏸ 운영진 작성 대기 ([authoring guide](../runbooks/content-authoring.md) 완료)
