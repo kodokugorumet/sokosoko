@@ -13,6 +13,8 @@ export default function robots(): MetadataRoute.Robots {
         // value and would burn crawl budget on duplicate listings.
         // /login, /onboarding, /auth/* are auth flow pages — no SEO value
         // and personalised state, so keep crawlers off them.
+        // /admin/* is operator-only; RLS blocks anonymous reads anyway
+        // but it's still better to keep it out of the crawl graph.
         disallow: [
           '/studio',
           '/api/',
@@ -21,6 +23,10 @@ export default function robots(): MetadataRoute.Robots {
           '/*/login',
           '/onboarding',
           '/*/onboarding',
+          '/admin',
+          '/admin/',
+          '/*/admin',
+          '/*/admin/',
           '/search',
           '/*/search',
         ],
