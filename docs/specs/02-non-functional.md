@@ -13,6 +13,7 @@
 | NFR-PERF-05 | ISR 재검증 주기                  | 1시간 + 태그 기반 즉시 무효화          | ✅        |
 | NFR-PERF-06 | 이미지 최적화                    | `next/image` + Sanity image pipeline   | ✅        |
 | NFR-PERF-07 | 폰트 로딩                        | `next/font` self-host, swap, subset    | ✅        |
+| NFR-PERF-08 | PR 단위 Lighthouse 회귀 방지     | LHCI (a11y/seo error, perf/bp warn)    | ✅        |
 
 ## 2. SEO
 
