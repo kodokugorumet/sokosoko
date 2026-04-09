@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { SupabasePostCard } from '@/components/post/SupabasePostCard';
+import { PostCard } from '@/components/post/PostCard';
 import { ShareButtons } from '@/components/post/ShareButtons';
 import { CommentThread } from '@/components/comments/CommentThread';
 import { estimateReadingMinutes } from '@/lib/reading-time';
@@ -230,7 +230,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       </header>
 
       {coverUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- see SupabasePostCard note.
+        // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URLs aren't whitelisted for next/image yet; Phase 2-G will wire them up.
         <img
           src={coverUrl}
           alt={title}
@@ -262,7 +262,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((r) => (
-              <SupabasePostCard key={r.id} post={r} locale={loc} />
+              <PostCard key={r.id} post={r} locale={loc} />
             ))}
           </div>
         </section>

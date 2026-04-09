@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { SupabasePostCard } from '@/components/post/SupabasePostCard';
+import { PostCard } from '@/components/post/PostCard';
 import { listPublishedPostsByBoard } from '@/lib/posts/queries';
 
 // Article pillars supported at this URL. The Supabase `boards` table has
@@ -64,7 +64,7 @@ export default async function PillarPage({ params }: { params: Promise<Params> }
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
             <li key={post.id}>
-              <SupabasePostCard post={post} locale={locale as 'ja' | 'ko'} />
+              <PostCard post={post} locale={locale as 'ja' | 'ko'} />
             </li>
           ))}
         </ul>
