@@ -102,7 +102,16 @@ export async function createQuestion(formData: FormData) {
   }
 
   revalidatePath('/qa', 'layout');
-  redirect(`/qa/${createdSlug}`);
+  // Percent-encode the slug before passing it to `redirect()`. Next.js
+  // puts the redirect target into the `x-action-redirect` HTTP header
+  // on Server Action responses, and HTTP header values are latin-1 only
+  // — raw Hangul / kana / kanji in a slug blows up with
+  // `TypeError: Invalid character in header content ["x-action-redirect"]`
+  // at the Node HTTP layer, which crashes the whole lambda and surfaces
+  // as FUNCTION_INVOCATION_FAILED. The browser decodes the percent-encoded
+  // path back before navigating, so the /qa/[slug] route sees the original
+  // Unicode slug in params and the DB lookup still matches.
+  redirect(`/qa/${encodeURIComponent(createdSlug)}`);
 }
 
 /**
