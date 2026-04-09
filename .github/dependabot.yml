@@ -1,0 +1,58 @@
+version: 2
+updates:
+  # npm/pnpm — weekly batch on Monday morning (KST). Group dev-only and
+  # runtime deps separately so PRs are easier to review and revert.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
+      include: scope
+    groups:
+      runtime:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+      dev:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Major bumps for the framework stack are coordinated manually.
+      - dependency-name: next
+        update-types: ['version-update:semver-major']
+      - dependency-name: react
+        update-types: ['version-update:semver-major']
+      - dependency-name: react-dom
+        update-types: ['version-update:semver-major']
+      - dependency-name: sanity
+        update-types: ['version-update:semver-major']
+      - dependency-name: next-sanity
+        update-types: ['version-update:semver-major']
+      - dependency-name: next-intl
+        update-types: ['version-update:semver-major']
+
+  # GitHub Actions — pin tags so the CI workflow doesn't silently drift.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Seoul
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: chore(ci)
+      include: scope
