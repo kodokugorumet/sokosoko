@@ -194,46 +194,59 @@
   },
   "Qa": {
     "metaTitle": "Q&A",
-    "metaDescription": "釜山での暮らし・留学・旅行に関するよくある質問と、コミュニティに寄せられた相談をまとめます。",
+    "metaDescription": "釜山での暮らし・留学・旅行についての質問と、コミュニティからの回答。",
     "title": "Q&A",
     "subtitle": "よくある質問と相談。",
-    "intro": "釜山での暮らし、留学・ワーホリの準備、旅行のちょっとしたコツなど、これまでにいただいた質問をまとめていきます。本格的な公開は Phase A に合わせて順次更新予定です。",
-    "featuredHeading": "注目の質問",
-    "allHeading": "すべての質問",
-    "answerHeading": "A. 回答",
-    "answerPending": "この質問にはまだ回答がありません。",
-    "fallbackBanner": "この回答は日本語訳がまだ準備中のため、韓国語原文を表示しています。",
-    "pillars": {
-      "life": "暮らし",
-      "study": "学ぶ",
-      "trip": "旅行",
-      "other": "その他"
+    "untitled": "(無題)",
+    "countSummary": "全 {count} 件",
+    "askButton": "質問する",
+    "loginToAsk": "ログインして質問する",
+    "answerCount": "回答 {count} 件",
+    "empty": {
+      "heading": "まだ質問がありません",
+      "body": "最初の質問を投稿してみましょう。"
     },
-    "comingSoon": {
-      "heading": "準備中",
-      "body": "現在、運営メンバーが質問の整理を進めています。先に質問したいことがある方は、Contact ページから直接ご連絡ください。",
-      "contactLabel": "Contact →"
+    "new": {
+      "metaTitle": "新しい質問",
+      "heading": "質問する",
+      "subtitle": "{nickname} として質問します。"
     },
-    "categories": {
-      "heading": "予定しているテーマ",
-      "items": [
-        {
-          "title": "暮らし",
-          "body": "住まい探し、銀行口座、病院、行政手続きなど、釜山での生活全般。"
-        },
-        {
-          "title": "留学・ワーホリ",
-          "body": "ビザ、語学堂、大学、就活、奨学金など、学びと進路に関する相談。"
-        },
-        {
-          "title": "旅行",
-          "body": "おすすめエリア、移動手段、地元の人だけが知る穴場のヒント。"
-        },
-        {
-          "title": "スタディ参加",
-          "body": "日本語スタディの参加方法、雰囲気、ルールなどの問い合わせ。"
+    "form": {
+      "langTabsLabel": "言語タブ",
+      "titleLabelJa": "タイトル (日本語)",
+      "titleLabelKo": "タイトル (韓国語)",
+      "titlePlaceholderJa": "例: 釜山で部屋を借りる際の注意点は?",
+      "titlePlaceholderKo": "예: 부산에서 집을 구할 때 주의할 점은?",
+      "bodyLabel": "本文",
+      "bodyOptional": "(任意)",
+      "submit": "投稿する",
+      "submitting": "投稿中…",
+      "error": {
+        "titleRequired": "日本語か韓国語、少なくとも1つのタイトルを入力してください。",
+        "slugCollision": "同じタイトルの質問が多すぎます。タイトルを少し変えてやり直してください。",
+        "unknown": "投稿に失敗しました。もう一度お試しください。"
+      }
+    },
+    "detail": {
+      "untitled": "(無題)",
+      "fallbackBanner": "この記事は日本語訳がまだ準備できていないため、韓国語の原文を表示しています。",
+      "answersHeading": "回答 ({count})",
+      "noAnswersYet": "まだ回答がありません。一番乗りしてみませんか?",
+      "emptyAnswerBody": "(本文なし)",
+      "loginToAnswer": "回答するにはログインしてください。",
+      "deleteAnswer": "削除",
+      "deleteAnswerConfirm": "この回答を削除します。よろしいですか?",
+      "answerForm": {
+        "heading": "回答する",
+        "langTabsLabel": "言語タブ",
+        "bodyLabel": "回答本文",
+        "submit": "回答を投稿",
+        "submitting": "投稿中…",
+        "error": {
+          "bodyRequired": "回答を少なくとも1言語で入力してください。",
+          "unknown": "投稿に失敗しました。もう一度お試しください。"
         }
-      ]
+      }
     }
   },
   "Search": {

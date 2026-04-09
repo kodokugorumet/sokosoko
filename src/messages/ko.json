@@ -194,46 +194,59 @@
   },
   "Qa": {
     "metaTitle": "Q&A",
-    "metaDescription": "부산 생활·유학·여행에 관한 자주 묻는 질문과, 커뮤니티에서 받은 상담을 모읍니다.",
+    "metaDescription": "부산 생활·유학·여행에 관한 질문과 커뮤니티의 답변.",
     "title": "Q&A",
     "subtitle": "자주 묻는 질문과 상담.",
-    "intro": "부산에서의 생활, 유학·워킹홀리데이 준비, 여행의 작은 노하우 등 지금까지 받아온 질문을 정리해 갑니다. 본격적인 공개는 Phase A 와 함께 순차적으로 업데이트됩니다.",
-    "featuredHeading": "주요 질문",
-    "allHeading": "모든 질문",
-    "answerHeading": "A. 답변",
-    "answerPending": "아직 답변이 준비되지 않았어요.",
-    "fallbackBanner": "이 답변은 한국어 번역이 아직 준비되지 않아 일본어 원문을 보여드립니다.",
-    "pillars": {
-      "life": "라이프",
-      "study": "유학",
-      "trip": "여행",
-      "other": "기타"
+    "untitled": "(제목 없음)",
+    "countSummary": "총 {count} 건",
+    "askButton": "질문하기",
+    "loginToAsk": "로그인하고 질문하기",
+    "answerCount": "답변 {count}개",
+    "empty": {
+      "heading": "아직 질문이 없어요",
+      "body": "첫 번째 질문을 남겨 보세요."
     },
-    "comingSoon": {
-      "heading": "준비 중",
-      "body": "현재 운영진이 질문을 정리하고 있습니다. 먼저 물어보고 싶은 내용이 있다면 Contact 페이지에서 바로 연락 주세요.",
-      "contactLabel": "Contact →"
+    "new": {
+      "metaTitle": "새 질문",
+      "heading": "질문하기",
+      "subtitle": "{nickname} 으로 질문을 남깁니다."
     },
-    "categories": {
-      "heading": "예정된 주제",
-      "items": [
-        {
-          "title": "생활",
-          "body": "집 구하기, 은행 계좌, 병원, 행정 절차 등 부산 생활 전반."
-        },
-        {
-          "title": "유학·워킹홀리데이",
-          "body": "비자, 어학당, 대학, 취업, 장학금 등 배움과 진로에 대한 상담."
-        },
-        {
-          "title": "여행",
-          "body": "추천 지역, 이동 수단, 현지인만 아는 숨은 장소 팁."
-        },
-        {
-          "title": "스터디 참여",
-          "body": "일본어 스터디 참여 방법, 분위기, 규칙 등 문의."
+    "form": {
+      "langTabsLabel": "언어 탭",
+      "titleLabelJa": "제목 (일본어)",
+      "titleLabelKo": "제목 (한국어)",
+      "titlePlaceholderJa": "例: 釜山で部屋を借りる際の注意点は?",
+      "titlePlaceholderKo": "예: 부산에서 집을 구할 때 주의할 점은?",
+      "bodyLabel": "본문",
+      "bodyOptional": "(선택)",
+      "submit": "질문 등록",
+      "submitting": "등록 중…",
+      "error": {
+        "titleRequired": "일본어 또는 한국어 제목을 최소 하나 입력해 주세요.",
+        "slugCollision": "같은 제목의 질문이 너무 많아요. 제목을 조금 바꿔 다시 시도해 주세요.",
+        "unknown": "등록에 실패했어요. 다시 시도해 주세요."
+      }
+    },
+    "detail": {
+      "untitled": "(제목 없음)",
+      "fallbackBanner": "이 글은 한국어 번역이 아직 준비되지 않아 일본어 원문을 보여드려요.",
+      "answersHeading": "답변 ({count})",
+      "noAnswersYet": "아직 답변이 없어요. 첫 답변을 달아 보세요.",
+      "emptyAnswerBody": "(본문 없음)",
+      "loginToAnswer": "답변을 달려면 로그인해 주세요.",
+      "deleteAnswer": "삭제",
+      "deleteAnswerConfirm": "이 답변을 삭제합니다. 계속할까요?",
+      "answerForm": {
+        "heading": "답변하기",
+        "langTabsLabel": "언어 탭",
+        "bodyLabel": "답변 본문",
+        "submit": "답변 등록",
+        "submitting": "등록 중…",
+        "error": {
+          "bodyRequired": "답변을 최소 한 언어 이상 입력해 주세요.",
+          "unknown": "등록에 실패했어요. 다시 시도해 주세요."
         }
-      ]
+      }
     }
   },
   "Search": {
