@@ -51,7 +51,10 @@ CI で同じチェックが走ります。
 - 日本語 first → 韓国語は等価訳 (ニュアンス調整 OK)。
 - 新しいキーを追加するときは **両方** に同時に追加する。
 
-## Sanity スキーマ変更
+## Supabase スキーマ変更
 
+- 新しいマイグレーションは `supabase/migrations/000N_description.sql` で番号順に作成。
+- 既存マイグレーションは **編集しない**。常に新しいマイグレーションを追加する。
+- マイグレーションは **idempotent** に書く (`create ... if not exists` / `drop policy if exists` / `do $$ ... $$`) — 재실행해도 안전해야 함。
 - スキーマ変更は **必ず ADR** を書く (`docs/adr/`)。
-- マイグレーションが必要な変更は別 PR にする。
+- RLS 정책이 포함된 변경은 `docs/runbooks/supabase-setup.md` 의 관련 섹션을 함께 업데이트.

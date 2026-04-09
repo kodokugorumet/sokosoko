@@ -76,34 +76,78 @@ PR 단위의 일자별 개발 진척도. 각 행은 머지된 PR.
 | #44    | fix(i18n): render <html lang> and not-found page in the actual locale     |
 | #45    | docs(adr): ADR-0004 — drop Sanity for Supabase single stack               |
 
-## 누적 통계 (2일)
+## 2026-04-10 (Day 3) — Phase 2 실행
 
-| 항목                 | 수치                                |
-| -------------------- | ----------------------------------- |
-| 머지된 PR            | 30+                                 |
-| 도입한 라우트        | 16                                  |
-| Sanity 도큐먼트 타입 | 7                                   |
-| GROQ 쿼리            | 11 (검색 2종 추가)                  |
-| JSON-LD 스키마 종류  | 3 (Article, BreadcrumbList, QAPage) |
-| 지원 로케일          | 2 (ja, ko)                          |
+### Phase 2-A~B: 기반 구축
 
-## Phase 1 진행도 (체감)
+| PR  | 제목                                                               |
+| --- | ------------------------------------------------------------------ |
+| #46 | feat(auth): Phase 2-B — Supabase 기반 (auth, profiles, onboarding) |
+| #47 | fix(auth): proxy matcher 에서 `/auth/*` 제외                       |
+| #48 | fix(onboarding): 닉네임 저장 후 layout cache 무효화                |
 
-- **콘텐츠 모델 / 라우트** — ⚠️ Phase 2 에서 재구축 예정 ([ADR-0004](../adr/0004-drop-sanity-for-supabase.md))
-- **SEO** — ✅ 95% (GSC 콘솔 등록 후 운영자가 토큰을 Vercel env 에 입력하면 완료)
-- **운영 자동화** — ⏸ Phase 2 마이그레이션 후 재정의
-- **SNS 자동 송출** — ⏳ 25% (X 어댑터 풀 구현, IG/LINE 은 stub. 트리거 소스는 Phase 2 에서 Supabase 로 전환)
-- **시드 콘텐츠 10편** — ⏸ Phase 2 (Supabase) 인프라 완성 후 진행
+### Phase 2-C: 관리자 게시글 + TipTap
 
-## Phase 2 (시작)
+| PR  | 제목                                                                  |
+| --- | --------------------------------------------------------------------- |
+| #49 | feat(admin): Phase 2-C — TipTap 에디터 + 관리자 게시글 CRUD + /p/[id] |
+| #50 | fix(admin): 공개/비공개 버튼 레이블 정리                              |
 
-[ADR-0004](../adr/0004-drop-sanity-for-supabase.md) 에 따라 Sanity 를 완전히 제거하고 Supabase 단일 스택으로 전환.
+### Phase 2-D: Q&A + 유저 답변 + 신뢰 뱃지
 
-| 단계      | 설명                                                                      | 상태 |
-| --------- | ------------------------------------------------------------------------- | ---- |
-| Phase 2-A | ADR-0004 (#45) 결정 문서                                                  | ✅   |
-| Phase 2-B | `feat/supabase-foundation` — @supabase/ssr + auth + profiles + /login     | ⏸    |
-| Phase 2-C | `feat/posts-and-boards` — boards/posts 테이블 + TipTap 에디터 + 목록/상세 | ⏸    |
-| Phase 2-D | `feat/qa-with-answers` — Q&A 답변 + 신뢰 뱃지 정렬                        | ⏸    |
-| Phase 2-E | `feat/comments-and-moderation` — 댓글 + 모더레이션 큐                     | ⏸    |
-| Phase 2-F | `chore/remove-sanity` — Sanity 코드/의존성 제거 + 라우팅 정리             | ⏸    |
+| PR  | 제목                                                                          |
+| --- | ----------------------------------------------------------------------------- |
+| #51 | feat(qa): Phase 2-D — Q&A + 유저 답변 + 신뢰 뱃지 정렬                        |
+| #52 | fix(slug): NFKD → NFC 로 한글 Hangul URL round-trip                           |
+| #53 | fix(qa): PostgREST embed 실패 우회를 위해 Q&A 쿼리 two-step 재작성            |
+| #54 | fix(qa): `redirect()` 전에 슬러그 percent-encode (FUNCTION_INVOCATION_FAILED) |
+| #55 | fix(qa): defensive slug lookup + fallback scan + 진단 로그                    |
+| #56 | fix(editor): TipTap 중복 Link extension 제거 + 슬러그 후보 승자 로깅          |
+| #57 | chore(deps): 미사용 `@tiptap/extension-link` 제거                             |
+| #58 | refactor(qa): 슬러그 lookup 을 `decodeURIComponent` 하나로 정리 (로그 근거로) |
+
+### Phase 2-E: 댓글 + 모더레이션
+
+| PR  | 제목                                                                |
+| --- | ------------------------------------------------------------------- |
+| #59 | feat(comments): Phase 2-E — 스레드 댓글 + 모더레이션 큐 + 신뢰 뱃지 |
+
+### Phase 2-F: Sanity 완전 제거
+
+| PR  | 제목                                                                                    |
+| --- | --------------------------------------------------------------------------------------- |
+| #60 | feat(phase-2f): Sanity 백엔드 완전 제거, 모든 public 페이지 Supabase 전환 (-9460 lines) |
+| #61 | refactor: SupabasePostCard → PostCard 이름 복원                                         |
+| #62 | feat(qa): per-answer comments + CommentThread compact variant                           |
+| #63 | fix(seo): localized not-found 페이지에 robots:noindex 마크                              |
+
+## 누적 통계 (3일)
+
+| 항목                | 수치                                                           |
+| ------------------- | -------------------------------------------------------------- |
+| 머지된 PR           | 60+                                                            |
+| 도입한 라우트       | 17 (Sanity 3개 제거, Supabase 6개 신규)                        |
+| Supabase 테이블     | 6 (profiles, boards, posts, answers, comments, post_revisions) |
+| RLS 정책            | 20+                                                            |
+| 서버 쿼리 헬퍼      | 15+ (posts + comments)                                         |
+| JSON-LD 스키마 종류 | 2 (Article, BreadcrumbList)                                    |
+| 지원 로케일         | 2 (ja, ko)                                                     |
+
+## Phase 2 진행도
+
+| 단계      | 설명                                  | 상태 |
+| --------- | ------------------------------------- | ---- |
+| Phase 2-A | ADR-0004 (#45) 결정 문서              | ✅   |
+| Phase 2-B | 기반 (#46 ~ #48)                      | ✅   |
+| Phase 2-C | 관리자 게시글 + TipTap (#49, #50)     | ✅   |
+| Phase 2-D | Q&A + 답변 + 신뢰 뱃지 (#51 ~ #58)    | ✅   |
+| Phase 2-E | 댓글 + 모더레이션 (#59)               | ✅   |
+| Phase 2-F | Sanity 제거 + 라우팅 정리 (#60 ~ #63) | ✅   |
+
+**Phase 2 완료.** Sanity 가 코드베이스에서 완전히 사라짐. Phase 3 으로 자연스럽게 이어지는 항목들:
+
+- Supabase Storage 이미지 업로드 + `next/image` 파이프라인 (Phase 2-G)
+- 알림 시스템 (자기 글에 댓글 달릴 때 이메일/push)
+- 유저 프로필 페이지 (`/@nickname`)
+- 포인트/뱃지 시스템 (Q&A helpful 카운트 기반 verified 승격)
+- 스팸 방지 (Cloudflare Turnstile)
