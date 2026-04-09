@@ -11,7 +11,19 @@ export default function robots(): MetadataRoute.Robots {
         // /studio is the embedded Sanity admin — should never be indexed.
         // /search produces user-driven result pages that have no canonical
         // value and would burn crawl budget on duplicate listings.
-        disallow: ['/studio', '/api/', '/search', '/*/search'],
+        // /login, /onboarding, /auth/* are auth flow pages — no SEO value
+        // and personalised state, so keep crawlers off them.
+        disallow: [
+          '/studio',
+          '/api/',
+          '/auth/',
+          '/login',
+          '/*/login',
+          '/onboarding',
+          '/*/onboarding',
+          '/search',
+          '/*/search',
+        ],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

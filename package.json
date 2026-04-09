@@ -32,6 +32,8 @@
     "@sanity/image-url": "2",
     "@sanity/vision": "5",
     "@sanity/webhook": "^4.0.4",
+    "@supabase/ssr": "^0.10.2",
+    "@supabase/supabase-js": "^2.103.0",
     "next": "16.2.3",
     "next-intl": "^4.9.0",
     "next-sanity": "12",

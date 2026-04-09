@@ -269,6 +269,51 @@
     "body": "일시적인 오류가 난 것 같아요. 잠시 후 다시 시도해 주세요.",
     "retry": "다시 시도"
   },
+  "Auth": {
+    "notConfigured": "현재 이 환경에서는 로그인 기능이 아직 설정되지 않았습니다. 운영 환경에서는 사용 가능해요.",
+    "header": {
+      "signIn": "로그인",
+      "signOut": "로그아웃",
+      "signedInAs": "로그인 중"
+    },
+    "login": {
+      "metaTitle": "로그인",
+      "metaDescription": "이메일로 매직 링크를 받아 로그인합니다.",
+      "heading": "로그인",
+      "subtitle": "이메일을 입력하시면 로그인 링크를 보내드려요. 비밀번호는 필요 없어요.",
+      "emailLabel": "이메일",
+      "submit": "링크 보내기",
+      "submitting": "보내는 중…",
+      "sent": {
+        "heading": "메일을 보냈어요",
+        "body": "{email} 로 보낸 링크를 클릭하시면 로그인이 완료돼요."
+      },
+      "error": {
+        "empty": "이메일을 입력해 주세요.",
+        "invalid": "이메일 형식이 올바르지 않아요.",
+        "unknown": "보내는 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요."
+      }
+    },
+    "onboarding": {
+      "metaTitle": "닉네임 설정",
+      "heading": "환영해요!",
+      "body": "사이트에서 사용할 닉네임을 정해 주세요. 나중에 변경 가능해요 (※Phase 2 후반 지원 예정).",
+      "nicknameLabel": "닉네임",
+      "nicknamePlaceholder": "예: imojomo",
+      "nicknameHint": "2〜24자. 문자·숫자·「_」「-」「.」 사용 가능.",
+      "submit": "등록하기",
+      "submitting": "등록 중…",
+      "error": {
+        "tooShort": "닉네임은 2자 이상 입력해 주세요.",
+        "tooLong": "닉네임은 24자 이내로 입력해 주세요.",
+        "invalidChars": "사용할 수 없는 문자가 포함되어 있어요.",
+        "reserved": "이 이름은 사용할 수 없어요.",
+        "taken": "이미 사용 중인 닉네임이에요.",
+        "unauthorized": "로그인이 필요해요.",
+        "unknown": "등록에 실패했어요. 잠시 후 다시 시도해 주세요."
+      }
+    }
+  },
   "Footer": {
     "copyright": "© {year} 부산 살이. 이모저모",
     "about": "About",
