@@ -22,8 +22,16 @@ export function slugify(source: string): string {
 
   // Strip punctuation and collapse whitespace. Keeps letters (any script),
   // numbers, and spaces/hyphens; everything else gone.
+  //
+  // IMPORTANT: normalise to **NFC**, not NFKD. NFKD decomposes Korean
+  // Hangul syllables into conjoining jamo (e.g. "부산" becomes 6 code
+  // points of ㅂ ㅜ ㅅ ㅏ ㄴ instead of the 2-codepoint precomposed
+  // form). That stored form then failed to round-trip through the URL
+  // because Next.js / Vercel's edge layer normalises the request path
+  // back to NFC, so the lookup query saw a different string than the
+  // one in the database → the detail page 404'd every time.
   const cleaned = trimmed
-    .normalize('NFKD')
+    .normalize('NFC')
     .replace(/[^\p{L}\p{N}\s-]/gu, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
