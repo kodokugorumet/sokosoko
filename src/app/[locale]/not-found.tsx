@@ -1,16 +1,21 @@
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
 /**
- * Localised 404 for routes under `/[locale]`. Server component — uses
- * the current request locale via `getTranslations` so the back-home link
- * and copy stay in the same language as the surrounding site chrome.
+ * Localised 404 for routes under `/[locale]`. Server component — reads
+ * the current request locale explicitly via `getLocale()` and passes it
+ * to `getTranslations()`, because when `notFound()` is called from a
+ * nested Server Component the implicit request-context locale is not
+ * always propagated through the error boundary, causing the fallback to
+ * render in whatever next-intl's default locale is (ko in our routing
+ * config) regardless of the URL.
  *
  * Next.js falls back to the root `/not-found.tsx` when this file isn't
  * matched (e.g. non-locale paths like `/api/*`).
  */
 export default async function LocaleNotFound() {
-  const t = await getTranslations('NotFound');
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: 'NotFound' });
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center px-6 py-16 text-center">
       <p className="font-hand text-7xl tracking-wider text-[var(--accent)] sm:text-8xl">404</p>
