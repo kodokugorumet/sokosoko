@@ -25,6 +25,13 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Match everything except API, Next internals, Sanity Studio, and files with an extension.
-  matcher: ['/', '/((?!api|_next|_vercel|studio|.*\\..*).*)'],
+  // Match everything except API, Next internals, Sanity Studio, the Supabase
+  // magic-link callback, and files with an extension.
+  //
+  // `/auth/*` MUST be excluded: it's a non-locale Route Handler
+  // (`src/app/auth/callback/route.ts`) and next-intl's middleware would
+  // otherwise rewrite `/auth/callback` → `/ja/auth/callback`, which doesn't
+  // match any route and returns 404 — which is exactly what broke the first
+  // magic link sign-in on production.
+  matcher: ['/', '/((?!api|_next|_vercel|studio|auth|.*\\..*).*)'],
 };
