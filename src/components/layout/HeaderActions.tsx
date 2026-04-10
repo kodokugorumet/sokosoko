@@ -17,6 +17,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { SearchBox } from '@/components/search/SearchBox';
 import { LocaleSwitcher } from './LocaleSwitcher';
+import { ThemeToggle } from './ThemeToggle';
 import { signOut } from '@/lib/auth/actions';
 
 export type HeaderUser = {
@@ -343,7 +344,10 @@ export function HeaderActions({ user }: { user: HeaderUser | null }) {
           </div>
           <div className="mt-2 flex items-center justify-between">
             <span className="text-xs text-zinc-500">{tMenu('language')}</span>
-            <LocaleSwitcher />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <LocaleSwitcher />
+            </div>
           </div>
         </div>
       </aside>
@@ -353,6 +357,7 @@ export function HeaderActions({ user }: { user: HeaderUser | null }) {
   return (
     <>
       <div className="flex shrink-0 items-center gap-2">
+        <ThemeToggle />
         <LocaleSwitcher />
         {/* Auth pill: shows the nickname (with role badge) when signed in,
             falls back to a LOG IN link otherwise. Hidden on mobile to give
