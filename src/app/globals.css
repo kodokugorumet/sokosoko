@@ -1,5 +1,11 @@
 @import 'tailwindcss';
 
+/* Tell Tailwind v4 to use class-based dark mode (.dark on <html>)
+   instead of the default @media (prefers-color-scheme). This lets us
+   offer a manual toggle while still respecting the system preference
+   as the default via the inline script in layout.tsx. */
+@custom-variant dark (&:is(.dark *));
+
 :root {
   /* 노트북·종이 무드: 거의 순백 + 잉크 블랙 + 분홍 액센트 */
   --background: #ffffff;
@@ -10,6 +16,17 @@
   --accent-soft: #fde7ec;
   --muted: #f5f5f2;
   --border: #1a1a18;
+}
+
+:root.dark {
+  --background: #111110;
+  --foreground: #f5f3ee;
+  --ink: #f5f3ee;
+  --paper: #1a1a18;
+  --accent: #f08aa1;
+  --accent-soft: #2a1418;
+  --muted: #1d1d1b;
+  --border: #f5f3ee;
 }
 
 @theme inline {
@@ -23,19 +40,6 @@
   --font-sans: var(--font-noto-sans-jp), var(--font-noto-sans-kr), system-ui, sans-serif;
   --font-hand:
     var(--font-klee-one), var(--font-gaegu), var(--font-noto-sans-jp), system-ui, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #111110;
-    --foreground: #f5f3ee;
-    --ink: #f5f3ee;
-    --paper: #1a1a18;
-    --accent: #f08aa1;
-    --accent-soft: #2a1418;
-    --muted: #1d1d1b;
-    --border: #f5f3ee;
-  }
 }
 
 html,

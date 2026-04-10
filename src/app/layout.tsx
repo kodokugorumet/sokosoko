@@ -64,8 +64,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
+      // `suppressHydrationWarning` is required because the inline theme
+      // script below toggles the `dark` class on <html> before React
+      // hydrates. Without this React would warn about a mismatch
+      // between the server-rendered className and the client's.
+      suppressHydrationWarning
       className={`${notoSansJP.variable} ${notoSansKR.variable} ${kleeOne.variable} ${gaegu.variable} h-full`}
     >
+      <head>
+        {/* Anti-flash: apply the user's stored theme preference (or
+            system default) synchronously before the browser paints.
+            This MUST be an inline script, not a module import, because
+            modules are deferred and the first paint would show the wrong
+            theme for one frame. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col antialiased">{children}</body>
       {GA_MEASUREMENT_ID ? <GoogleAnalytics gaId={GA_MEASUREMENT_ID} /> : null}
     </html>
