@@ -394,6 +394,12 @@
     "fallbackBanner": "이 글은 한국어 번역이 아직 준비되지 않아 일본어 원문을 보여드려요.",
     "emptyBody": "본문은 아직 준비 중이에요."
   },
+  "Profile": {
+    "joinedAt": "{date} 부터 활동",
+    "postsHeading": "게시글 ({count})",
+    "questionsHeading": "질문 ({count})",
+    "emptyActivity": "아직 활동 내역이 없어요."
+  },
   "Comments": {
     "heading": "댓글 ({count})",
     "headingCompact": "답글 ({count})",

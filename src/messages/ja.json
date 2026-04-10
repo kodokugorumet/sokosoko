@@ -394,6 +394,12 @@
     "fallbackBanner": "この記事は日本語訳がまだ準備できていないため、韓国語の原文を表示しています。",
     "emptyBody": "本文はまだ準備中です。"
   },
+  "Profile": {
+    "joinedAt": "{date} から参加",
+    "postsHeading": "投稿 ({count})",
+    "questionsHeading": "質問 ({count})",
+    "emptyActivity": "まだ投稿がありません。"
+  },
   "Comments": {
     "heading": "コメント ({count})",
     "headingCompact": "返信 ({count})",
