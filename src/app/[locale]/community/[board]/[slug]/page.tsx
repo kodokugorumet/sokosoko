@@ -9,6 +9,8 @@ import { estimateReadingMinutes } from '@/lib/reading-time';
 import { getBoardBySlug, getPublicPostByBoardSlug, type UserRole } from '@/lib/posts/queries';
 import { renderTipTapHtml, isTipTapEmpty } from '@/lib/tiptap/render';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
+import { getSessionUser } from '@/lib/auth/require-role';
+import { PostOwnerActions } from './PostOwnerActions';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
@@ -78,6 +80,22 @@ export default async function CommunityPostDetailPage({ params }: { params: Prom
   });
   if (!post) notFound();
 
+  const user = await getSessionUser();
+
+  // Check if the current user is the author — needed for edit/delete buttons.
+  // We don't have author_id in the public post type (intentionally — it's
+  // an internal ID), so we do a fast lookup by the known post id.
+  let isAuthor = false;
+  if (user) {
+    const { createClient: createSbClient } = await import('@/lib/supabase/server');
+    const sb = await createSbClient();
+    const { data: row } = await sb
+      .from('posts')
+      .select('author_id')
+      .eq('id', post.id)
+      .maybeSingle();
+    isAuthor = row?.author_id === user.id;
+  }
   const t = await getTranslations('Article');
   const loc = locale as Locale;
 
@@ -161,6 +179,18 @@ export default async function CommunityPostDetailPage({ params }: { params: Prom
       )}
 
       <ShareButtons url={canonicalUrl} title={title} />
+
+      {/* Author actions: edit + delete. Author can always edit/delete
+          their own community post; admin/operator can edit/delete anyone's. */}
+      {user && (isAuthor || user.role === 'admin' || user.role === 'operator') ? (
+        <PostOwnerActions
+          postId={post.id}
+          boardSlug={boardSlug}
+          postSlug={post.slug}
+          canEdit={isAuthor || user.role === 'admin' || user.role === 'operator'}
+          canDelete={isAuthor || user.role === 'admin' || user.role === 'operator'}
+        />
+      ) : null}
 
       <CommentThread targetType="post" targetId={post.id} revalidatePathHint={canonicalPath} />
     </article>

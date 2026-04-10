@@ -375,6 +375,17 @@
       "heading": "新規投稿",
       "subtitle": "{board} に {nickname} として投稿します。"
     },
+    "edit": {
+      "metaTitle": "編集 · コミュニティ",
+      "heading": "投稿を編集",
+      "save": "保存",
+      "saved": "保存しました。"
+    },
+    "postActions": {
+      "edit": "編集",
+      "delete": "削除",
+      "deleteConfirm": "この投稿を削除します。よろしいですか?"
+    },
     "form": {
       "langTabsLabel": "言語タブ",
       "titleLabelJa": "タイトル (日本語)",
