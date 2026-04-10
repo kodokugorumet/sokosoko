@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -234,12 +235,16 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       </header>
 
       {coverUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URLs aren't whitelisted for next/image yet; Phase 2-G will wire them up.
-        <img
-          src={coverUrl}
-          alt={title}
-          className="mb-8 aspect-[16/9] w-full rounded-md object-cover"
-        />
+        <div className="relative mb-8 aspect-[16/9] w-full overflow-hidden rounded-md">
+          <Image
+            src={coverUrl}
+            alt={title}
+            fill
+            sizes="(min-width: 768px) 720px, 100vw"
+            className="object-cover"
+            priority
+          />
+        </div>
       ) : null}
 
       {usedFallback ? (

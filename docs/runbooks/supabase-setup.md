@@ -34,27 +34,27 @@ Supabase 대시보드 → **Project Settings** → **API** 에서 값 복사:
 
 저장 후 자동 redeploy 가 일어남 (또는 다음 PR merge 시 자동).
 
-## 3. 스키마 + RLS 적용 (마이그레이션 1 회)
+## 3. 스키마 + RLS + Storage 적용 (마이그레이션)
 
-1. Supabase 대시보드 → **SQL Editor** → **New query**
-2. 로컬 저장소의 [`supabase/migrations/0001_init.sql`](../../supabase/migrations/0001_init.sql) 전체 내용 복사 → 붙여넣기
-3. **Run** (오른쪽 하단)
-4. "Success. No rows returned" 가 뜨면 완료
+`supabase/migrations/` 아래 파일들을 번호 순서대로 전부 실행합니다. 각 파일은
+idempotent 하게 작성되어 있어 여러 번 실행해도 안전합니다.
 
-스크립트는 `if not exists` / `do $$ ... $$` 로 감싸여 있어 **여러 번 실행해도 안전** 합니다 (idempotent).
+| 순서 | 파일                                                                                             | 내용                                                                             |
+| ---- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| 1    | [`0001_init.sql`](../../supabase/migrations/0001_init.sql)                                       | 6 개 테이블 (profiles/boards/posts/answers/comments/post_revisions) + RLS + seed |
+| 2    | [`0002_comments_and_moderation.sql`](../../supabase/migrations/0002_comments_and_moderation.sql) | posts/answers/comments 의 DELETE 정책 (모더레이션용)                             |
+| 3    | [`0003_storage_bucket.sql`](../../supabase/migrations/0003_storage_bucket.sql)                   | Storage 버킷 `post-covers` + storage.objects RLS 정책                            |
+
+각 파일을 Supabase 대시보드 → **SQL Editor** → **New query** 에 붙여넣고
+**Run** 누르면 됩니다. "Success. No rows returned" 가 뜨면 완료.
 
 ### 적용된 것 확인
 
-대시보드 → **Table Editor** 에서 다음 6 개 테이블이 보여야 함:
-
-- `profiles`
-- `boards` (4 행 시드: life / study / trip / qa)
-- `posts`
-- `answers`
-- `comments`
-- `post_revisions`
-
-**Authentication** → **Policies** 에서 각 테이블에 RLS 정책이 등록돼 있어야 함.
+- **Table Editor** 에 다음 6 개 테이블이 보여야 함:
+  `profiles`, `boards` (4 행 시드: life / study / trip / qa), `posts`,
+  `answers`, `comments`, `post_revisions`
+- **Storage** 탭에 `post-covers` 버킷이 보여야 함 (Public 배지 표시)
+- **Authentication** → **Policies** 에서 각 테이블에 RLS 정책이 등록돼 있어야 함
 
 ## 4. Email auth 활성화
 

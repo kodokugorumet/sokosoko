@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import type { PublicPostCardRow, UserRole } from '@/lib/posts/queries';
 
@@ -49,12 +50,15 @@ export function PostCard({ post, locale }: { post: PublicPostCardRow; locale: Lo
       className="hand-box group flex flex-col overflow-hidden rounded-md transition-colors hover:bg-[var(--accent-soft)]"
     >
       {post.cover_image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element -- Supabase Storage URLs aren't whitelisted for next/image yet; Phase 2-G will wire them up properly.
-        <img
-          src={post.cover_image_url}
-          alt=""
-          className="aspect-[16/10] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-        />
+        <div className="relative aspect-[16/10] w-full overflow-hidden">
+          <Image
+            src={post.cover_image_url}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          />
+        </div>
       ) : (
         // No cover — soft pastel block keeps the grid even.
         <div

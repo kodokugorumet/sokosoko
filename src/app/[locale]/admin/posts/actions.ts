@@ -44,6 +44,17 @@ function pickExcerpt(formData: FormData, lang: 'ja' | 'ko'): string | null {
   return v || null;
 }
 
+function pickCoverUrl(formData: FormData): string | null {
+  const raw = String(formData.get('cover_image_url') ?? '').trim();
+  if (!raw) return null;
+  // Minimal sanity check so a broken form submission can't poison the
+  // column with arbitrary text. We only accept http(s) URLs — Supabase
+  // Storage returns https, and a relative path would never resolve
+  // against a foreign domain in an OG card anyway.
+  if (!/^https?:\/\//i.test(raw)) return null;
+  return raw;
+}
+
 const MAX_SLUG_RETRIES = 5;
 
 /**
@@ -66,6 +77,7 @@ export async function createPost(formData: FormData) {
 
   const excerptJa = pickExcerpt(formData, 'ja');
   const excerptKo = pickExcerpt(formData, 'ko');
+  const coverImageUrl = pickCoverUrl(formData);
 
   const baseSlug = slugify(titleJa ?? titleKo ?? '');
 
@@ -91,6 +103,7 @@ export async function createPost(formData: FormData) {
         excerpt_ko: excerptKo,
         body_ja: bodyJa,
         body_ko: bodyKo,
+        cover_image_url: coverImageUrl,
         status: 'draft',
       })
       .select('id')
@@ -130,6 +143,7 @@ export async function updatePost(id: string, formData: FormData) {
   const excerptKo = pickExcerpt(formData, 'ko');
   const bodyJa = parseTipTapBody(formData.get('body_ja'));
   const bodyKo = parseTipTapBody(formData.get('body_ko'));
+  const coverImageUrl = pickCoverUrl(formData);
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -141,6 +155,7 @@ export async function updatePost(id: string, formData: FormData) {
       excerpt_ko: excerptKo,
       body_ja: bodyJa,
       body_ko: bodyKo,
+      cover_image_url: coverImageUrl,
     })
     .eq('id', id);
 

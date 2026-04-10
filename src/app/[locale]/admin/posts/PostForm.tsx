@@ -6,6 +6,7 @@ import type { JSONContent } from '@tiptap/core';
 import { TipTapEditor } from '@/components/editor/TipTapEditor';
 import type { BoardRow, AdminPostRow } from '@/lib/posts/queries';
 import { createPost, updatePost } from './actions';
+import { CoverImageUpload } from './CoverImageUpload';
 
 /**
  * Post create / edit form. Single component with a `mode` prop so the
@@ -109,6 +110,13 @@ export function PostForm(props: Props) {
       ) : (
         <input type="hidden" name="board_slug" value={boardSlug} />
       )}
+
+      {/* Cover image — optional but strongly recommended because the
+          home/pillar grids show a pastel placeholder when a post has
+          no cover. The upload field persists the public URL in a
+          hidden `cover_image_url` field that the server action picks
+          up on submit. */}
+      <CoverImageUpload initialUrl={seed?.cover_image_url ?? null} />
 
       {/* Language tabs — the active tab's inputs are visible; the other
           language's state lives in hidden fields so the server action
