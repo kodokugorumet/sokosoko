@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
+import { countUnreadNotifications } from '@/lib/notifications/queries';
 import { HeaderActions, type HeaderUser } from './HeaderActions';
 
 export async function Header() {
@@ -55,7 +56,12 @@ export async function Header() {
             {t('name')}
           </span>
         </Link>
-        <HeaderActions user={headerUser} />
+        <HeaderActions
+          user={headerUser}
+          unreadCount={
+            headerUser ? await countUnreadNotifications(headerUser.id).catch(() => 0) : 0
+          }
+        />
       </div>
     </header>
   );

@@ -414,6 +414,18 @@
     "questionsHeading": "질문 ({count})",
     "emptyActivity": "아직 활동 내역이 없어요."
   },
+  "Notifications": {
+    "metaTitle": "알림",
+    "heading": "알림",
+    "empty": "알림이 없어요.",
+    "markAllRead": "모두 읽음 처리",
+    "viewPost": "글 보기 →",
+    "kind": {
+      "comment": "님이 댓글을 남겼어요",
+      "answer": "님이 답변을 작성했어요",
+      "helpful_vote": "님이 「도움이 됐어요」를 눌렀어요"
+    }
+  },
   "Comments": {
     "heading": "댓글 ({count})",
     "headingCompact": "답글 ({count})",

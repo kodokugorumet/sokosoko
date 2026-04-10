@@ -45,7 +45,13 @@ const ROLE_BADGE: Record<HeaderUser['role'], string> = {
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export function HeaderActions({ user }: { user: HeaderUser | null }) {
+export function HeaderActions({
+  user,
+  unreadCount = 0,
+}: {
+  user: HeaderUser | null;
+  unreadCount?: number;
+}) {
   const t = useTranslations('Header');
   const tMenu = useTranslations('Menu');
   const tAuth = useTranslations('Auth');
@@ -366,20 +372,32 @@ export function HeaderActions({ user }: { user: HeaderUser | null }) {
       <div className="flex shrink-0 items-center gap-2">
         <ThemeToggle />
         <LocaleSwitcher />
-        {/* Auth pill: shows the nickname (with role badge) when signed in,
-            falls back to a LOG IN link otherwise. Hidden on mobile to give
-            the brand wordmark room — the drawer footer mirrors the same
-            controls so mobile users still have access. */}
+        {/* Auth pill + notification bell. Hidden on mobile — the drawer
+            footer mirrors both controls. */}
         {user ? (
-          <Link
-            href="/"
-            className="hand-box hidden max-w-[10rem] truncate rounded-md px-3 py-1 text-xs font-medium tracking-wide whitespace-nowrap hover:bg-[var(--accent-soft)] sm:inline-flex"
-            aria-label={user.nickname}
-            title={user.nickname}
-          >
-            {ROLE_BADGE[user.role] ? `${ROLE_BADGE[user.role]} ` : ''}
-            {user.nickname}
-          </Link>
+          <>
+            <Link
+              href="/notifications"
+              className="hand-box relative rounded-md px-2 py-1 text-sm leading-none hover:bg-[var(--accent-soft)]"
+              aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
+            >
+              🔔
+              {unreadCount > 0 ? (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--accent)] text-[10px] font-bold text-white">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              ) : null}
+            </Link>
+            <Link
+              href={`/user/${encodeURIComponent(user.nickname)}`}
+              className="hand-box hidden max-w-[10rem] truncate rounded-md px-3 py-1 text-xs font-medium tracking-wide whitespace-nowrap hover:bg-[var(--accent-soft)] sm:inline-flex"
+              aria-label={user.nickname}
+              title={user.nickname}
+            >
+              {ROLE_BADGE[user.role] ? `${ROLE_BADGE[user.role]} ` : ''}
+              {user.nickname}
+            </Link>
+          </>
         ) : (
           <Link
             href="/login"

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getSessionUser, requireRole } from '@/lib/auth/require-role';
+import { createNotification } from '@/lib/notifications/actions';
 import type { CommentTargetType } from './queries';
 
 /**
@@ -71,17 +72,40 @@ export async function createComment(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from('comments').insert({
-    target_type: targetType,
-    target_id: targetId,
-    author_id: auth.user.id,
-    body,
-    parent_id: parentId,
-  });
+  const { data: inserted, error } = await supabase
+    .from('comments')
+    .insert({
+      target_type: targetType,
+      target_id: targetId,
+      author_id: auth.user.id,
+      body,
+      parent_id: parentId,
+    })
+    .select('id')
+    .single();
 
   if (error) {
     console.error('[createComment] insert failed', { targetType, targetId, error });
     return { ok: false as const, error: error.message };
+  }
+
+  // Best-effort notification to the content owner.
+  if (targetType === 'post' && inserted) {
+    const { data: post } = await supabase
+      .from('posts')
+      .select('author_id')
+      .eq('id', targetId)
+      .maybeSingle();
+    if (post?.author_id && post.author_id !== auth.user.id) {
+      createNotification({
+        recipientId: post.author_id as string,
+        kind: 'comment',
+        sourceId: inserted.id,
+        actorId: auth.user.id,
+        postId: targetId,
+        preview: body.slice(0, 100),
+      }).catch(() => {});
+    }
   }
 
   revalidateTargetPath(formData);
