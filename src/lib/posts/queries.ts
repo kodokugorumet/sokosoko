@@ -154,6 +154,70 @@ export async function getAdminPostById(id: string): Promise<AdminPostRow | null>
 }
 
 /**
+ * Same as `getAdminPostById` but also fetches the author's profile so
+ * the admin edit page can show "by @someone-else" when the viewer
+ * isn't the author. Two-step (post → profile) to stay consistent with
+ * the rest of the file's pattern.
+ */
+export type AdminPostWithAuthor = AdminPostRow & {
+  author: {
+    id: string;
+    nickname: string;
+    role: UserRole;
+  };
+};
+
+export async function getAdminPostByIdWithAuthor(id: string): Promise<AdminPostWithAuthor | null> {
+  const supabase = await createClient();
+  const { data: post, error: postError } = await supabase
+    .from('posts')
+    .select(
+      'id, board_slug, slug, title_ja, title_ko, excerpt_ja, excerpt_ko, body_ja, body_ko, cover_image_url, status, published_at, updated_at, created_at, author_id',
+    )
+    .eq('id', id)
+    .maybeSingle();
+  if (postError) {
+    console.error('[getAdminPostByIdWithAuthor] post query failed', { id, postError });
+    throw postError;
+  }
+  if (!post) return null;
+
+  const { data: authorRow, error: authorError } = await supabase
+    .from('profiles')
+    .select('id, nickname, role')
+    .eq('id', (post as { author_id: string }).author_id)
+    .maybeSingle();
+  if (authorError) {
+    console.error('[getAdminPostByIdWithAuthor] author query failed', authorError);
+    throw authorError;
+  }
+  if (!authorRow) return null;
+
+  const p = post as AdminPostRow & { author_id: string };
+  return {
+    id: p.id,
+    board_slug: p.board_slug,
+    slug: p.slug,
+    title_ja: p.title_ja,
+    title_ko: p.title_ko,
+    excerpt_ja: p.excerpt_ja,
+    excerpt_ko: p.excerpt_ko,
+    body_ja: p.body_ja,
+    body_ko: p.body_ko,
+    cover_image_url: p.cover_image_url,
+    status: p.status,
+    published_at: p.published_at,
+    updated_at: p.updated_at,
+    created_at: p.created_at,
+    author: {
+      id: authorRow.id as string,
+      nickname: authorRow.nickname as string,
+      role: authorRow.role as UserRole,
+    },
+  };
+}
+
+/**
  * Public detail query. Implemented as **two sequential queries** instead
  * of a PostgREST embedded join (`author:profiles!author_id(...)`) because
  * the embed syntax proved flaky against our current Supabase schema —

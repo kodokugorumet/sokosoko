@@ -310,6 +310,7 @@
         "heading": "投稿を編集",
         "viewPublic": "公開ページを見る →",
         "lastUpdated": "最終更新: {date}",
+        "byAuthor": "この投稿の作者は {nickname} さんです。保存前にご確認ください。",
         "publish": "公開",
         "unpublish": "非公開",
         "delete": "削除",

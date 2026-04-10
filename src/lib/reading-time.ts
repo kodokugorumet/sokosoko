@@ -1,5 +1,5 @@
 /**
- * Reading time estimator.
+ * Reading time estimator for TipTap JSONContent documents.
  *
  * CJK text is counted by character, Latin text by whitespace-separated
  * word. The rates below are the conservative midpoints from published
@@ -7,10 +7,9 @@
  * A single combined rate keeps the output stable when a post mixes
  * scripts.
  *
- * Accepts two input shapes so the same function works across the old
- * Sanity Portable Text era and the current TipTap JSON era:
- *   - Portable Text block arrays (legacy; being removed in Phase 2-F)
- *   - TipTap `JSONContent` documents, recursively walked for text nodes
+ * Returns 0 for empty or missing input so callers can hide the "read in
+ * X min" line entirely on stub pages (instead of showing "1 min" for
+ * something with no body at all).
  */
 
 const CJK_CHARS_PER_MINUTE = 500;
@@ -18,11 +17,6 @@ const LATIN_WORDS_PER_MINUTE = 230;
 
 // Unicode ranges for CJK ideographs, hiragana, katakana, hangul syllables.
 const CJK_REGEX = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu;
-
-type PortableTextBlock = {
-  _type?: string;
-  children?: Array<{ _type?: string; text?: string }>;
-};
 
 type TipTapNode = {
   type?: string;
@@ -42,43 +36,20 @@ function extractFromTipTap(node: unknown): string {
 }
 
 export function extractPlainText(input: unknown): string {
-  // TipTap document — has `type: 'doc'` at the root with a `content` array.
-  if (
-    input &&
-    typeof input === 'object' &&
-    !Array.isArray(input) &&
-    (input as TipTapNode).type === 'doc'
-  ) {
-    return extractFromTipTap(input).trim();
-  }
-  // Portable Text — a plain array of block objects. Kept for the duration
-  // of the Sanity → Supabase migration; can be deleted once no callers
-  // pass PT blocks anymore.
-  if (Array.isArray(input)) {
-    const out: string[] = [];
-    for (const raw of input) {
-      const block = raw as PortableTextBlock;
-      if (block?._type === 'block' && Array.isArray(block.children)) {
-        for (const child of block.children) {
-          if (child?._type === 'span' && typeof child.text === 'string') {
-            out.push(child.text);
-          }
-        }
-      }
-    }
-    return out.join(' ');
-  }
-  return '';
+  if (!input || typeof input !== 'object') return '';
+  return extractFromTipTap(input).trim();
 }
 
 /**
- * Returns the estimated reading time in whole minutes (minimum 1).
- * Accepts Portable Text block arrays OR TipTap JSON documents; unknown
- * shapes resolve to 1 min.
+ * Returns the estimated reading time in whole minutes, rounded up.
+ * Empty / missing input returns **0** so callers can conditionally
+ * render the "X min read" line only when there's actually something to
+ * read. Non-empty input always returns at least 1 so we never mislead
+ * the reader into thinking a paragraph takes zero minutes.
  */
-export function estimateReadingMinutes(blocks: unknown): number {
-  const text = extractPlainText(blocks);
-  if (!text.trim()) return 1;
+export function estimateReadingMinutes(body: unknown): number {
+  const text = extractPlainText(body);
+  if (!text.trim()) return 0;
 
   const cjkMatches = text.match(CJK_REGEX) ?? [];
   const cjkCount = cjkMatches.length;

@@ -1,10 +1,11 @@
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import {
   listCommentsForTarget,
   type CommentTargetType,
   type CommentRow,
 } from '@/lib/comments/queries';
 import { getSessionUser } from '@/lib/auth/require-role';
+import { formatRelativeTime, type Locale } from '@/lib/relative-time';
 import { CommentForm } from './CommentForm';
 import { CommentActions } from './CommentActions';
 
@@ -48,6 +49,8 @@ export async function CommentThread({
   variant = 'full',
 }: Props) {
   const t = await getTranslations('Comments');
+  const localeStr = await getLocale();
+  const locale: Locale = localeStr === 'ko' ? 'ko' : 'ja';
   const [comments, user] = await Promise.all([
     listCommentsForTarget(targetType, targetId).catch((err) => {
       console.error('[CommentThread] list failed', { targetType, targetId, err });
@@ -96,6 +99,7 @@ export async function CommentThread({
                 canDelete={user?.id === root.author.id}
                 canModerate={canModerate}
                 revalidatePathHint={revalidatePathHint}
+                locale={locale}
               />
               {(childrenByParent.get(root.id) ?? []).length > 0 ? (
                 <ul className="mt-3 ml-6 flex flex-col gap-3 border-l border-zinc-200 pl-4 dark:border-zinc-800">
@@ -106,6 +110,7 @@ export async function CommentThread({
                         canDelete={user?.id === child.author.id}
                         canModerate={canModerate}
                         revalidatePathHint={revalidatePathHint}
+                        locale={locale}
                       />
                     </li>
                   ))}
@@ -137,11 +142,13 @@ function CommentCard({
   canDelete,
   canModerate,
   revalidatePathHint,
+  locale,
 }: {
   comment: CommentRow;
   canDelete: boolean;
   canModerate: boolean;
   revalidatePathHint: string;
+  locale: Locale;
 }) {
   return (
     <div className="hand-box rounded-md bg-[var(--background)] p-3 text-sm">
@@ -151,7 +158,7 @@ function CommentCard({
           {comment.author.nickname}
         </span>
         <span aria-hidden>·</span>
-        <time dateTime={comment.created_at}>{formatDate(comment.created_at)}</time>
+        <time dateTime={comment.created_at}>{formatRelativeTime(comment.created_at, locale)}</time>
         {comment.hidden ? (
           <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-900/40 dark:text-red-300">
             hidden
@@ -172,13 +179,4 @@ function CommentCard({
       ) : null}
     </div>
   );
-}
-
-function formatDate(iso: string) {
-  // Fixed locale-agnostic ISO date because `toLocaleString` inside a
-  // Server Component runs on the server, which has no meaningful locale
-  // — we don't want a SSR/client timezone mismatch flashing across the
-  // hydration boundary. Readers can see the exact moment via the
-  // `<time dateTime>` for screen readers if they care.
-  return new Date(iso).toISOString().slice(0, 10);
 }
