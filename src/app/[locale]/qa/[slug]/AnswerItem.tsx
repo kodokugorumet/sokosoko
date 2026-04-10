@@ -1,10 +1,11 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import type { AnswerRow, UserRole } from '@/lib/posts/queries';
 import { renderTipTapHtml, isTipTapEmpty } from '@/lib/tiptap/render';
 import { deleteAnswer } from '../actions';
+import { toggleHelpfulVote } from '@/lib/posts/vote-actions';
 
 /**
  * Single answer card. Client Component only for the delete button's
@@ -31,11 +32,24 @@ type Props = {
   locale: 'ja' | 'ko';
   questionSlug: string;
   canDelete: boolean;
+  /** Whether the current user already voted helpful on this answer. */
+  voted: boolean;
+  /** Whether the user is logged in (to show/hide the vote button). */
+  isLoggedIn: boolean;
 };
 
-export function AnswerItem({ answer, locale, questionSlug, canDelete }: Props) {
+export function AnswerItem({
+  answer,
+  locale,
+  questionSlug,
+  canDelete,
+  voted: initialVoted,
+  isLoggedIn,
+}: Props) {
   const t = useTranslations('Qa.detail');
   const [pending, startTransition] = useTransition();
+  const [voted, setVoted] = useState(initialVoted);
+  const [helpfulCount, setHelpfulCount] = useState(answer.helpful_count);
 
   const primaryBody = locale === 'ja' ? answer.body_ja : answer.body_ko;
   const fallbackBody = locale === 'ja' ? answer.body_ko : answer.body_ja;
@@ -90,6 +104,37 @@ export function AnswerItem({ answer, locale, questionSlug, canDelete }: Props) {
       ) : (
         <p className="text-sm text-zinc-500">{t('emptyAnswerBody')}</p>
       )}
+
+      {/* Helpful vote button */}
+      <div className="mt-3 flex items-center gap-2">
+        {isLoggedIn ? (
+          <button
+            type="button"
+            onClick={() => {
+              startTransition(async () => {
+                const res = await toggleHelpfulVote(answer.id, questionSlug);
+                if (res.ok) {
+                  setVoted(res.voted);
+                  if (res.newCount >= 0) setHelpfulCount(res.newCount);
+                }
+              });
+            }}
+            disabled={pending}
+            className={`flex items-center gap-1 rounded-md border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-60 ${
+              voted
+                ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]'
+                : 'border-[var(--border)] bg-[var(--background)] text-zinc-600 hover:border-[var(--accent)] dark:text-zinc-400'
+            }`}
+          >
+            👍 {t('helpful')}
+          </button>
+        ) : null}
+        {helpfulCount > 0 ? (
+          <span className="text-xs text-zinc-500">
+            {t('helpfulCount', { count: helpfulCount })}
+          </span>
+        ) : null}
+      </div>
     </article>
   );
 }

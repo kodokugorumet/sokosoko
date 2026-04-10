@@ -10,6 +10,7 @@ import {
 import { renderTipTapHtml, isTipTapEmpty } from '@/lib/tiptap/render';
 import { getSessionUser } from '@/lib/auth/require-role';
 import { isSupabaseConfigured } from '@/lib/supabase/server';
+import { getMyVotes } from '@/lib/posts/vote-actions';
 import { CommentThread } from '@/components/comments/CommentThread';
 import { AnswerForm } from './AnswerForm';
 import { AnswerItem } from './AnswerItem';
@@ -68,6 +69,13 @@ export default async function QuestionDetailPage({ params }: { params: Promise<P
     }),
     getSessionUser(),
   ]);
+
+  // Batch-fetch the current user's votes so we can render the toggle
+  // state on every answer button without per-answer queries.
+  const myVotes =
+    user && answers.length > 0
+      ? await getMyVotes(answers.map((a) => a.id)).catch(() => new Set<string>())
+      : new Set<string>();
 
   const t = await getTranslations('Qa.detail');
   const loc = locale as Locale;
@@ -135,6 +143,8 @@ export default async function QuestionDetailPage({ params }: { params: Promise<P
                   locale={loc}
                   questionSlug={slug}
                   canDelete={user?.id === a.author.id}
+                  voted={myVotes.has(a.id)}
+                  isLoggedIn={!!user}
                 />
                 {/* Per-answer comment thread — shorter header than the
                     question-level thread so it doesn't visually compete
