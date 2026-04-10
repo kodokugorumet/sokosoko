@@ -314,6 +314,7 @@
         "byAuthor": "この投稿の作者は {nickname} さんです。保存前にご確認ください。",
         "publish": "公開",
         "unpublish": "非公開",
+        "syndicateToX": "X (Twitter) に送出する",
         "delete": "削除",
         "deleteConfirm": "この投稿を完全に削除します。よろしいですか?"
       },
@@ -439,6 +440,18 @@
         "delete": "削除",
         "deleteConfirm": "このコメントを完全に削除します。よろしいですか?"
       }
+    }
+  },
+  "Broadcast": {
+    "metaTitle": "送出 · 管理",
+    "heading": "SNS 送出",
+    "subtitle": "記事を作成せず、直接メッセージを SNS に送出します。",
+    "form": {
+      "messageLabel": "メッセージ",
+      "messagePlaceholder": "送出するテキストを入力してください (最大280文字)",
+      "platformsLabel": "送出先",
+      "send": "送出する",
+      "sending": "送出中…"
     }
   },
   "Auth": {

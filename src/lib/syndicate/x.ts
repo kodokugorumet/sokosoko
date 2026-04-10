@@ -36,13 +36,30 @@ function getCreds(): OAuth1Creds | null {
   return { consumerKey, consumerSecret, accessToken, accessTokenSecret };
 }
 
+/**
+ * Post a tweet with a title + article URL (auto-composed to fit 280).
+ * Used by publishPost when the operator opts in to syndication.
+ */
 export async function postTweet(title: string, articleUrl: string): Promise<TweetResult> {
+  const text = articleUrl
+    ? composeMessage(title, articleUrl, TEXT_LIMIT)
+    : title.slice(0, TEXT_LIMIT);
+  return postRawTweet(text);
+}
+
+/**
+ * Post a tweet with raw pre-composed text. Used by the broadcast page
+ * where the operator writes the exact message themselves.
+ */
+export async function postRawTweet(text: string): Promise<TweetResult> {
   const creds = getCreds();
   if (!creds) {
     return { ok: false, skipped: true, reason: 'X_API_KEY* env vars not set' };
   }
 
-  const text = composeMessage(title, articleUrl, TEXT_LIMIT);
+  if (!text.trim()) {
+    return { ok: false, skipped: true, reason: 'empty text' };
+  }
   const authHeader = buildOAuth1Header('POST', API_URL, creds);
 
   let res: Response;
