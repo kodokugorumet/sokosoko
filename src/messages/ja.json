@@ -449,7 +449,9 @@
       "delete": "削除",
       "deleteConfirm": "このコメントを削除します。よろしいですか?",
       "hide": "非表示にする",
-      "unhide": "再表示する"
+      "unhide": "再表示する",
+      "reply": "返信",
+      "cancelReply": "キャンセル"
     }
   },
   "Moderation": {

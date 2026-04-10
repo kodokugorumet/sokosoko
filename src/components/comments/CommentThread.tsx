@@ -8,6 +8,7 @@ import { getSessionUser } from '@/lib/auth/require-role';
 import { formatRelativeTime, type Locale } from '@/lib/relative-time';
 import { CommentForm } from './CommentForm';
 import { CommentActions } from './CommentActions';
+import { ReplyButton } from './ReplyButton';
 
 /**
  * Server Component: fetches comments for a given target (post or answer),
@@ -98,6 +99,9 @@ export async function CommentThread({
                 comment={root}
                 canDelete={user?.id === root.author.id}
                 canModerate={canModerate}
+                canReply={!!user && user.onboarded}
+                targetType={targetType}
+                targetId={targetId}
                 revalidatePathHint={revalidatePathHint}
                 locale={locale}
               />
@@ -109,6 +113,9 @@ export async function CommentThread({
                         comment={child}
                         canDelete={user?.id === child.author.id}
                         canModerate={canModerate}
+                        canReply={false}
+                        targetType={targetType}
+                        targetId={targetId}
                         revalidatePathHint={revalidatePathHint}
                         locale={locale}
                       />
@@ -141,12 +148,18 @@ function CommentCard({
   comment,
   canDelete,
   canModerate,
+  canReply,
+  targetType,
+  targetId,
   revalidatePathHint,
   locale,
 }: {
   comment: CommentRow;
   canDelete: boolean;
   canModerate: boolean;
+  canReply: boolean;
+  targetType: CommentTargetType;
+  targetId: string;
   revalidatePathHint: string;
   locale: Locale;
 }) {
@@ -168,15 +181,25 @@ function CommentCard({
       <p className="leading-relaxed break-words whitespace-pre-wrap text-zinc-800 dark:text-zinc-200">
         {comment.body}
       </p>
-      {canDelete || canModerate ? (
-        <CommentActions
-          commentId={comment.id}
-          canDelete={canDelete}
-          canModerate={canModerate}
-          hidden={comment.hidden}
-          revalidatePathHint={revalidatePathHint}
-        />
-      ) : null}
+      <div className="mt-2 flex items-center gap-3">
+        {canDelete || canModerate ? (
+          <CommentActions
+            commentId={comment.id}
+            canDelete={canDelete}
+            canModerate={canModerate}
+            hidden={comment.hidden}
+            revalidatePathHint={revalidatePathHint}
+          />
+        ) : null}
+        {canReply ? (
+          <ReplyButton
+            targetType={targetType}
+            targetId={targetId}
+            parentId={comment.id}
+            revalidatePathHint={revalidatePathHint}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

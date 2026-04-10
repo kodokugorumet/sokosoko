@@ -449,7 +449,9 @@
       "delete": "삭제",
       "deleteConfirm": "이 댓글을 삭제할까요?",
       "hide": "숨기기",
-      "unhide": "다시 보이기"
+      "unhide": "다시 보이기",
+      "reply": "답글",
+      "cancelReply": "취소"
     }
   },
   "Moderation": {

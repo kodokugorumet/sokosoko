@@ -20,11 +20,19 @@ type Props = {
   revalidatePathHint: string;
   /** Shrinks the textarea + button for the inline per-answer variant. */
   compact?: boolean;
+  /** When set, the comment is a threaded reply under this parent. */
+  parentId?: string;
 };
 
 const MAX = 2000;
 
-export function CommentForm({ targetType, targetId, revalidatePathHint, compact = false }: Props) {
+export function CommentForm({
+  targetType,
+  targetId,
+  revalidatePathHint,
+  compact = false,
+  parentId,
+}: Props) {
   const t = useTranslations('Comments.form');
   const [body, setBody] = useState('');
   const [pending, startTransition] = useTransition();
@@ -67,6 +75,7 @@ export function CommentForm({ targetType, targetId, revalidatePathHint, compact 
       <input type="hidden" name="target_type" value={targetType} />
       <input type="hidden" name="target_id" value={targetId} />
       <input type="hidden" name="revalidate_path" value={revalidatePathHint} />
+      {parentId ? <input type="hidden" name="parent_id" value={parentId} /> : null}
       <label className="flex flex-col gap-1">
         {!compact && <span className="text-sm font-medium text-[var(--ink)]">{t('label')}</span>}
         <textarea
