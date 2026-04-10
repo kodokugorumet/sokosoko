@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getSessionUser } from '@/lib/auth/require-role';
 import { slugify, appendSuffix } from '@/lib/slug';
 import { isTipTapEmpty } from '@/lib/tiptap/render';
+import { createNotification } from '@/lib/notifications/actions';
 
 /**
  * Q&A server actions. Questions live in `posts` with `board_slug='qa'`;
@@ -127,14 +128,41 @@ export async function createAnswer(questionId: string, formData: FormData) {
   if (!bodyJa && !bodyKo) return { ok: false as const, error: 'body-required' };
 
   const supabase = await createClient();
-  const { error } = await supabase.from('answers').insert({
-    question_id: questionId,
-    author_id: user.id,
-    body_ja: bodyJa,
-    body_ko: bodyKo,
-  });
+  const { data: inserted, error } = await supabase
+    .from('answers')
+    .insert({
+      question_id: questionId,
+      author_id: user.id,
+      body_ja: bodyJa,
+      body_ko: bodyKo,
+    })
+    .select('id')
+    .single();
 
   if (error) return { ok: false as const, error: error.message };
+
+  // Notify the question author that someone answered.
+  if (inserted) {
+    const { data: question } = await supabase
+      .from('posts')
+      .select('author_id')
+      .eq('id', questionId)
+      .maybeSingle();
+    if (question?.author_id && question.author_id !== user.id) {
+      createNotification({
+        recipientId: question.author_id as string,
+        kind: 'answer',
+        sourceId: inserted.id,
+        actorId: user.id,
+        postId: questionId,
+        preview: bodyJa
+          ? JSON.stringify(bodyJa).slice(0, 80)
+          : bodyKo
+            ? JSON.stringify(bodyKo).slice(0, 80)
+            : null,
+      }).catch(() => {});
+    }
+  }
 
   // Invalidate the question detail page so the new answer shows up on
   // the next navigation without a hard refresh.
