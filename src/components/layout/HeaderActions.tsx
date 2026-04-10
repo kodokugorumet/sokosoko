@@ -284,6 +284,13 @@ export function HeaderActions({ user }: { user: HeaderUser | null }) {
                     </Link>
                   </>
                 ) : null}
+                <Link
+                  href="/settings"
+                  onClick={close}
+                  className="hand-box rounded-md px-3 py-2 text-center text-xs font-medium hover:bg-[var(--accent-soft)]"
+                >
+                  ⚙️ {tAuth('header.settings')}
+                </Link>
                 <form action={signOut}>
                   <button
                     type="submit"

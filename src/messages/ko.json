@@ -454,11 +454,35 @@
       "sending": "보내는 중…"
     }
   },
+  "Settings": {
+    "metaTitle": "설정",
+    "heading": "프로필 설정",
+    "subtitle": "닉네임이나 자기소개를 변경할 수 있어요.",
+    "form": {
+      "nicknameLabel": "닉네임",
+      "nicknameHint": "2~24자. 문자·숫자·「_」「-」「.」 사용 가능.",
+      "bioJaLabel": "자기소개 (일본어)",
+      "bioKoLabel": "자기소개 (한국어)",
+      "bioPlaceholder": "한마디 소개 (최대 300자)",
+      "save": "저장",
+      "saving": "저장 중…",
+      "saved": "저장했어요.",
+      "error": {
+        "tooShort": "닉네임은 2자 이상 입력해 주세요.",
+        "tooLong": "닉네임은 24자 이내로 입력해 주세요.",
+        "invalidChars": "사용할 수 없는 문자가 포함되어 있어요.",
+        "reserved": "이 이름은 사용할 수 없어요.",
+        "taken": "이미 사용 중인 닉네임이에요.",
+        "unknown": "저장에 실패했어요. 다시 시도해 주세요."
+      }
+    }
+  },
   "Auth": {
     "notConfigured": "현재 이 환경에서는 로그인 기능이 아직 설정되지 않았습니다. 운영 환경에서는 사용 가능해요.",
     "header": {
       "signIn": "로그인",
       "signOut": "로그아웃",
+      "settings": "설정",
       "signedInAs": "로그인 중"
     },
     "login": {
