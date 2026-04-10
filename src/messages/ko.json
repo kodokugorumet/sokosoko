@@ -375,6 +375,17 @@
       "heading": "새 글 작성",
       "subtitle": "{board} 에 {nickname} (으)로 글을 작성합니다."
     },
+    "edit": {
+      "metaTitle": "편집 · 커뮤니티",
+      "heading": "글 편집",
+      "save": "저장",
+      "saved": "저장했어요."
+    },
+    "postActions": {
+      "edit": "편집",
+      "delete": "삭제",
+      "deleteConfirm": "이 글을 삭제할까요?"
+    },
     "form": {
       "langTabsLabel": "언어 탭",
       "titleLabelJa": "제목 (일본어)",
