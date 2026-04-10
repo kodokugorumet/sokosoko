@@ -23,6 +23,7 @@
     "topPage": "Top page",
     "blog": "Blog",
     "qa": "Q&A",
+    "community": "コミュニティ",
     "about": "About",
     "privacyPolicy": "privacy policy",
     "termsOfUse": "Terms of use",
@@ -350,6 +351,41 @@
           "slugCollision": "同じ名前の投稿が多すぎます。タイトルを少し変えてやり直してください。",
           "unknown": "保存に失敗しました。もう一度お試しください。"
         }
+      }
+    }
+  },
+  "Community": {
+    "metaTitle": "コミュニティ",
+    "metaDescription": "소코소코 コミュニティ掲示板。テーマ自由で気軽に投稿してください。",
+    "title": "コミュニティ",
+    "subtitle": "テーマ自由の掲示板。気軽にどうぞ。",
+    "empty": "まだ掲示板がありません。",
+    "postCount": "全 {count} 件",
+    "writeButton": "投稿する",
+    "loginToWrite": "ログインして投稿",
+    "boardEmpty": {
+      "heading": "まだ投稿がありません",
+      "body": "最初のひとことを書いてみましょう。"
+    },
+    "new": {
+      "metaTitle": "新規投稿 · コミュニティ",
+      "heading": "新規投稿",
+      "subtitle": "{board} に {nickname} として投稿します。"
+    },
+    "form": {
+      "langTabsLabel": "言語タブ",
+      "titleLabelJa": "タイトル (日本語)",
+      "titleLabelKo": "タイトル (韓国語)",
+      "titlePlaceholderJa": "例: 海雲台のおすすめカフェ",
+      "titlePlaceholderKo": "예: 해운대 추천 카페",
+      "bodyLabel": "本文",
+      "submit": "投稿する",
+      "submitting": "投稿中…",
+      "error": {
+        "titleRequired": "タイトルを少なくとも1言語で入力してください。",
+        "bodyRequired": "本文を入力してください。",
+        "slugCollision": "同じタイトルの投稿が多すぎます。タイトルを少し変えてやり直してください。",
+        "unknown": "投稿に失敗しました。もう一度お試しください。"
       }
     }
   },

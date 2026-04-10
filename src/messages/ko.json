@@ -23,6 +23,7 @@
     "topPage": "Top page",
     "blog": "Blog",
     "qa": "Q&A",
+    "community": "커뮤니티",
     "about": "About",
     "privacyPolicy": "privacy policy",
     "termsOfUse": "Terms of use",
@@ -350,6 +351,41 @@
           "slugCollision": "같은 이름의 글이 너무 많아요. 제목을 조금 바꿔 다시 시도해 주세요.",
           "unknown": "저장에 실패했어요. 다시 시도해 주세요."
         }
+      }
+    }
+  },
+  "Community": {
+    "metaTitle": "커뮤니티",
+    "metaDescription": "소코소코 커뮤니티 게시판. 주제 자유, 편하게 올려 주세요.",
+    "title": "커뮤니티",
+    "subtitle": "주제 자유. 편하게 올려 주세요.",
+    "empty": "아직 게시판이 없어요.",
+    "postCount": "총 {count} 건",
+    "writeButton": "글쓰기",
+    "loginToWrite": "로그인해서 글쓰기",
+    "boardEmpty": {
+      "heading": "아직 글이 없어요",
+      "body": "첫 글을 남겨보세요."
+    },
+    "new": {
+      "metaTitle": "새 글 작성 · 커뮤니티",
+      "heading": "새 글 작성",
+      "subtitle": "{board} 에 {nickname} (으)로 글을 작성합니다."
+    },
+    "form": {
+      "langTabsLabel": "언어 탭",
+      "titleLabelJa": "제목 (일본어)",
+      "titleLabelKo": "제목 (한국어)",
+      "titlePlaceholderJa": "例: 海雲台のおすすめカフェ",
+      "titlePlaceholderKo": "예: 해운대 추천 카페",
+      "bodyLabel": "본문",
+      "submit": "작성하기",
+      "submitting": "올리는 중…",
+      "error": {
+        "titleRequired": "제목을 최소 한 언어 이상 입력해 주세요.",
+        "bodyRequired": "본문을 입력해 주세요.",
+        "slugCollision": "같은 제목의 글이 너무 많아요. 제목을 조금 바꿔 다시 시도해 주세요.",
+        "unknown": "작성에 실패했어요. 다시 시도해 주세요."
       }
     }
   },

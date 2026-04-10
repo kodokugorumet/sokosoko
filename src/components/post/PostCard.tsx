@@ -32,7 +32,18 @@ function formatDate(iso: string | null, locale: Locale): string {
   });
 }
 
-export function PostCard({ post, locale }: { post: PublicPostCardRow; locale: Locale }) {
+export function PostCard({
+  post,
+  locale,
+  hrefPrefix,
+}: {
+  post: PublicPostCardRow;
+  locale: Locale;
+  /** Override the URL prefix. Default is `/${board_slug}`. Community
+   *  boards pass `/community/${board_slug}` so the card links into the
+   *  right route tree without touching the DB's board_slug value. */
+  hrefPrefix?: string;
+}) {
   const title =
     locale === 'ja'
       ? pickLocaleString(post.title_ja, post.title_ko)
@@ -42,7 +53,8 @@ export function PostCard({ post, locale }: { post: PublicPostCardRow; locale: Lo
       ? pickLocaleString(post.excerpt_ja, post.excerpt_ko)
       : pickLocaleString(post.excerpt_ko, post.excerpt_ja);
   const badge = ROLE_BADGE[post.author.role];
-  const href = `/${post.board_slug}/${encodeURIComponent(post.slug)}`;
+  const prefix = hrefPrefix ?? `/${post.board_slug}`;
+  const href = `${prefix}/${encodeURIComponent(post.slug)}`;
 
   return (
     <Link

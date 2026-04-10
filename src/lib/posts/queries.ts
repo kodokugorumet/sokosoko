@@ -292,6 +292,8 @@ export type BoardRow = {
   slug: string;
   name_ja: string;
   name_ko: string;
+  description_ja: string | null;
+  description_ko: string | null;
   kind: 'article' | 'qa';
   allow_member_post: boolean;
   sort_order: number;
@@ -301,10 +303,50 @@ export async function listBoards(): Promise<BoardRow[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('boards')
-    .select('slug, name_ja, name_ko, kind, allow_member_post, sort_order')
+    .select(
+      'slug, name_ja, name_ko, description_ja, description_ko, kind, allow_member_post, sort_order',
+    )
     .order('sort_order', { ascending: true });
   if (error) throw error;
   return (data ?? []) as BoardRow[];
+}
+
+/**
+ * Community boards = member-writable article boards. Used by the
+ * `/community` index page. Excludes operator-only pillar boards
+ * (life/study/trip) and Q&A (which has its own UI at /qa).
+ */
+export async function listCommunityBoards(): Promise<BoardRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('boards')
+    .select(
+      'slug, name_ja, name_ko, description_ja, description_ko, kind, allow_member_post, sort_order',
+    )
+    .eq('kind', 'article')
+    .eq('allow_member_post', true)
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as BoardRow[];
+}
+
+/**
+ * Check if a slug is a valid community board. Used by the
+ * `/community/[board]` route to distinguish valid boards from
+ * random path segments that should 404.
+ */
+export async function getBoardBySlug(slug: string): Promise<BoardRow | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('boards')
+    .select(
+      'slug, name_ja, name_ko, description_ja, description_ko, kind, allow_member_post, sort_order',
+    )
+    .eq('slug', slug)
+    .eq('allow_member_post', true)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as BoardRow | null) ?? null;
 }
 
 // ---------------------------------------------------------------------------
