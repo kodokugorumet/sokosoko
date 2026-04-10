@@ -231,6 +231,14 @@ export function HeaderActions({ user }: { user: HeaderUser | null }) {
           </Link>
 
           <Link
+            href="/community"
+            onClick={close}
+            className="mt-2 py-2 text-base font-medium hover:text-[var(--accent)]"
+          >
+            ● {tMenu('community')}
+          </Link>
+
+          <Link
             href="/about"
             onClick={close}
             className="mt-2 py-2 text-base font-medium hover:text-[var(--accent)]"

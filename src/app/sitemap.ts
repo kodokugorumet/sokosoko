@@ -4,11 +4,14 @@ import { listAllPublishedPostSlugs, listAllQuestionSlugs } from '@/lib/posts/que
 import { isSupabaseConfigured } from '@/lib/supabase/server';
 
 // Static paths that always exist for every locale.
-const STATIC_PATHS = ['', '/about', '/contact', '/qa'] as const;
+const STATIC_PATHS = ['', '/about', '/contact', '/qa', '/community'] as const;
 // Article board index pages — these exist regardless of post count;
 // empty-state handles the "no posts yet" case but the URL is still
 // canonical and worth indexing.
 const PILLAR_PATHS = ['/life', '/study', '/trip'] as const;
+// Community board slugs that get their own index in the sitemap.
+// When a new board is added via SQL, add it here too.
+const COMMUNITY_BOARD_SLUGS = ['free'] as const;
 
 const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
@@ -65,12 +68,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
+  const communityBoardEntries: MetadataRoute.Sitemap = COMMUNITY_BOARD_SLUGS.flatMap((slug) => {
+    const path = `/community/${slug}`;
+    return routing.locales.map((locale) => ({
+      url: urlFor(locale, path),
+      lastModified: now,
+      changeFrequency: 'daily' as const,
+      priority: 0.7,
+      alternates: alternatesFor(path),
+    }));
+  });
+
+  // Separate community board posts from pillar posts. Community posts
+  // live under /community/[board]/[slug]; pillar posts live at
+  // /[board]/[slug]. Q&A posts use /qa/[slug] below.
+  const communityBoardSlugsSet = new Set<string>(COMMUNITY_BOARD_SLUGS);
+
   const postEntries: MetadataRoute.Sitemap = posts.flatMap((post) => {
-    // Skip non-article boards (the 'qa' board has its own entry list below)
-    // and anything missing a slug / board so we never emit a bad URL.
     if (!post.board_slug || !post.slug) return [];
     if (post.board_slug === 'qa') return [];
-    const path = `/${post.board_slug}/${encodeURIComponent(post.slug)}`;
+    const isCommunity = communityBoardSlugsSet.has(post.board_slug);
+    const path = isCommunity
+      ? `/community/${post.board_slug}/${encodeURIComponent(post.slug)}`
+      : `/${post.board_slug}/${encodeURIComponent(post.slug)}`;
     return routing.locales.map((locale) => ({
       url: urlFor(locale, path),
       lastModified: post.updated_at ? new Date(post.updated_at) : now,
@@ -93,5 +113,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   });
 
-  return [...staticEntries, ...pillarEntries, ...postEntries, ...questionEntries];
+  return [
+    ...staticEntries,
+    ...pillarEntries,
+    ...communityBoardEntries,
+    ...postEntries,
+    ...questionEntries,
+  ];
 }
