@@ -314,6 +314,7 @@
         "byAuthor": "이 글의 작성자는 {nickname} 님입니다. 저장하기 전에 확인해 주세요.",
         "publish": "공개",
         "unpublish": "비공개",
+        "syndicateToX": "X (Twitter) 에 송출하기",
         "delete": "삭제",
         "deleteConfirm": "이 글을 완전히 삭제합니다. 계속할까요?"
       },
@@ -439,6 +440,18 @@
         "delete": "삭제",
         "deleteConfirm": "이 댓글을 완전히 삭제할까요?"
       }
+    }
+  },
+  "Broadcast": {
+    "metaTitle": "송출 · 관리",
+    "heading": "SNS 송출",
+    "subtitle": "글 작성 없이 직접 메시지를 SNS 로 보냅니다.",
+    "form": {
+      "messageLabel": "메시지",
+      "messagePlaceholder": "송출할 텍스트를 입력해 주세요 (최대 280자)",
+      "platformsLabel": "송출 대상",
+      "send": "보내기",
+      "sending": "보내는 중…"
     }
   },
   "Auth": {

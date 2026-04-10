@@ -275,6 +275,13 @@ export function HeaderActions({ user }: { user: HeaderUser | null }) {
                     >
                       🛡️ Moderation
                     </Link>
+                    <Link
+                      href="/admin/broadcast"
+                      onClick={close}
+                      className="hand-box rounded-md px-3 py-2 text-center text-xs font-medium hover:bg-[var(--accent-soft)]"
+                    >
+                      📢 Broadcast
+                    </Link>
                   </>
                 ) : null}
                 <form action={signOut}>

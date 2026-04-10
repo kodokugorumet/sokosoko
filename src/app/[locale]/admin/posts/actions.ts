@@ -168,12 +168,14 @@ export async function updatePost(id: string, formData: FormData) {
 }
 
 /**
- * Flip a draft to `published` and stamp `published_at`. Pillar board posts
- * skip the `pending` moderation step because only operators/admins can
- * insert into those boards in the first place; member-writable boards
- * (Phase 2-D) will use `pending` instead.
+ * Flip a draft to `published` and stamp `published_at`.
+ *
+ * `syndicateToX` is an opt-in flag the operator controls via a
+ * checkbox on the publish button row. When true AND the 4 X_API_*
+ * env vars are set, a tweet is sent fire-and-forget. When false
+ * (or env vars missing), syndication is silently skipped.
  */
-export async function publishPost(id: string) {
+export async function publishPost(id: string, syndicateToX = false) {
   await requireRole('operator');
 
   const supabase = await createClient();
@@ -192,21 +194,19 @@ export async function publishPost(id: string) {
   revalidatePath('/admin/posts', 'layout');
   revalidatePath(`/admin/posts/${id}`, 'layout');
 
-  // Fire-and-forget SNS syndication. A failure does NOT roll back the
-  // publish — the reader-facing article is already live. Errors are
-  // logged to the Vercel function log so the operator can investigate
-  // but the publish action still returns success to the client.
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
-  const title = (row.title_ja ?? row.title_ko ?? '').trim();
-  const articleUrl = `${siteUrl}/${row.board_slug}/${encodeURIComponent(row.slug)}`;
-  if (title) {
-    // Don't await in the response path — let it run asynchronously so
-    // the operator sees the publish button flip instantly. The X API
-    // call is ~200-500 ms and there's no user-facing side-effect to
-    // block on.
-    postTweet(title, articleUrl).catch((err) => {
-      console.error('[publishPost] SNS syndication failed', { id, err });
-    });
+  // SNS syndication — only when the operator opted in.
+  if (syndicateToX) {
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(
+      /\/$/,
+      '',
+    );
+    const title = (row.title_ja ?? row.title_ko ?? '').trim();
+    const articleUrl = `${siteUrl}/${row.board_slug}/${encodeURIComponent(row.slug)}`;
+    if (title) {
+      postTweet(title, articleUrl).catch((err) => {
+        console.error('[publishPost] SNS syndication failed', { id, err });
+      });
+    }
   }
 
   return { ok: true as const };
