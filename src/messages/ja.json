@@ -235,6 +235,8 @@
       "noAnswersYet": "まだ回答がありません。一番乗りしてみませんか?",
       "emptyAnswerBody": "(本文なし)",
       "loginToAnswer": "回答するにはログインしてください。",
+      "helpful": "参考になった",
+      "helpfulCount": "{count} 人が参考になったと評価",
       "deleteAnswer": "削除",
       "deleteAnswerConfirm": "この回答を削除します。よろしいですか?",
       "answerForm": {

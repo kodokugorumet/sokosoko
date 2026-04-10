@@ -235,6 +235,8 @@
       "noAnswersYet": "아직 답변이 없어요. 첫 답변을 달아 보세요.",
       "emptyAnswerBody": "(본문 없음)",
       "loginToAnswer": "답변을 달려면 로그인해 주세요.",
+      "helpful": "도움이 됐어요",
+      "helpfulCount": "{count}명이 도움이 됐다고 평가",
       "deleteAnswer": "삭제",
       "deleteAnswerConfirm": "이 답변을 삭제합니다. 계속할까요?",
       "answerForm": {
