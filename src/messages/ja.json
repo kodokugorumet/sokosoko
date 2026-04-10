@@ -403,6 +403,18 @@
     "questionsHeading": "質問 ({count})",
     "emptyActivity": "まだ投稿がありません。"
   },
+  "Notifications": {
+    "metaTitle": "通知",
+    "heading": "通知",
+    "empty": "通知はありません。",
+    "markAllRead": "すべて既読にする",
+    "viewPost": "投稿を見る →",
+    "kind": {
+      "comment": "がコメントしました",
+      "answer": "が回答しました",
+      "helpful_vote": "が「参考になった」と評価しました"
+    }
+  },
   "Comments": {
     "heading": "コメント ({count})",
     "headingCompact": "返信 ({count})",
