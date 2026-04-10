@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getSessionUser } from '@/lib/auth/require-role';
+import { createNotification } from '@/lib/notifications/actions';
 
 /**
  * Toggle a helpful vote on a Q&A answer.
@@ -68,11 +69,22 @@ export async function toggleHelpfulVote(answerId: string, questionSlug: string) 
 
     const { data: answer } = await supabase
       .from('answers')
-      .select('helpful_count')
+      .select('helpful_count, author_id, question_id')
       .eq('id', answerId)
       .single();
     const newCount = (answer?.helpful_count ?? 0) + 1;
     await supabase.from('answers').update({ helpful_count: newCount }).eq('id', answerId);
+
+    // Notify the answer author that someone found their answer helpful.
+    if (answer?.author_id && answer.author_id !== user.id) {
+      createNotification({
+        recipientId: answer.author_id as string,
+        kind: 'helpful_vote',
+        sourceId: answerId,
+        actorId: user.id,
+        postId: (answer.question_id as string) ?? null,
+      }).catch(() => {});
+    }
 
     revalidatePath(`/qa/${questionSlug}`, 'layout');
     return { ok: true as const, voted: true, newCount };
