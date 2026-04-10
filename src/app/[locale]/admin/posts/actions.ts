@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requireRole } from '@/lib/auth/require-role';
 import { slugify, appendSuffix } from '@/lib/slug';
 import { isTipTapEmpty } from '@/lib/tiptap/render';
+import { postTweet } from '@/lib/syndicate/x';
 
 /**
  * Server actions for the admin posts workflow. Every mutation:
@@ -176,19 +177,38 @@ export async function publishPost(id: string) {
   await requireRole('operator');
 
   const supabase = await createClient();
-  const { error } = await supabase
+  const { data: row, error } = await supabase
     .from('posts')
     .update({
       status: 'published',
       published_at: new Date().toISOString(),
     })
-    .eq('id', id);
+    .eq('id', id)
+    .select('board_slug, slug, title_ja, title_ko')
+    .single();
 
   if (error) return { ok: false as const, error: error.message };
 
   revalidatePath('/admin/posts', 'layout');
   revalidatePath(`/admin/posts/${id}`, 'layout');
-  revalidatePath(`/p/${id}`, 'layout');
+
+  // Fire-and-forget SNS syndication. A failure does NOT roll back the
+  // publish — the reader-facing article is already live. Errors are
+  // logged to the Vercel function log so the operator can investigate
+  // but the publish action still returns success to the client.
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+  const title = (row.title_ja ?? row.title_ko ?? '').trim();
+  const articleUrl = `${siteUrl}/${row.board_slug}/${encodeURIComponent(row.slug)}`;
+  if (title) {
+    // Don't await in the response path — let it run asynchronously so
+    // the operator sees the publish button flip instantly. The X API
+    // call is ~200-500 ms and there's no user-facing side-effect to
+    // block on.
+    postTweet(title, articleUrl).catch((err) => {
+      console.error('[publishPost] SNS syndication failed', { id, err });
+    });
+  }
+
   return { ok: true as const };
 }
 
