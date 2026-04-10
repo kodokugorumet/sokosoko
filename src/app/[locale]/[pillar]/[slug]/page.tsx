@@ -220,10 +220,13 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           {title}
         </h1>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-500">
-          <span>
+          <Link
+            href={`/user/${encodeURIComponent(authorName)}`}
+            className="hover:text-[var(--accent)] hover:underline"
+          >
             {authorBadge ? `${authorBadge} ` : ''}
             {authorName}
-          </span>
+          </Link>
           <time dateTime={publishedAtIso}>{formatDate(publishedAtIso, loc)}</time>
           {readingMinutes > 0 ? (
             <>
