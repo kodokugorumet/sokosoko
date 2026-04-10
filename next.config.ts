@@ -5,12 +5,22 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // No remotePatterns yet — Phase 2-F removed the Sanity CDN whitelist,
-  // and Supabase Storage URLs are not yet wired through next/image
-  // (rendered via plain <img> tags for now, with an eslint-disable hint
-  // at each usage site pointing at this note). Phase 2-G will add the
-  // Supabase project's storage host here and swap the <img> tags for
-  // next/image for the automatic optimisation pipeline.
+  images: {
+    remotePatterns: [
+      // Supabase Storage public URLs. The project's ref is variable per
+      // environment, so we wildcard the subdomain and scope to
+      // `/storage/v1/object/public/**` — everything under that is a
+      // publicly readable bucket object, gated by the bucket's Storage
+      // RLS policies. Nothing else the project might serve (Realtime
+      // WebSocket, Functions, etc.) matches this URL shape, so the
+      // whitelist stays tight.
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -326,6 +326,20 @@
         "excerptLabel": "概要 (任意・検索結果と一覧カードに表示)",
         "excerptPlaceholder": "1〜2行の要約",
         "bodyLabel": "本文",
+        "cover": {
+          "label": "カバー画像",
+          "hint": "一覧カードと OG 共有画像に使います。推奨 1200×630 / 5MB 以下。JPEG / PNG / WebP / AVIF 対応。",
+          "chooseFile": "画像を選ぶ",
+          "uploading": "アップロード中…",
+          "replace": "差し替え",
+          "clear": "削除",
+          "error": {
+            "empty": "ファイルを選択してください。",
+            "tooLarge": "ファイルサイズが大きすぎます (最大 5MB)。",
+            "badType": "画像形式に対応していません (JPEG / PNG / WebP / AVIF のみ)。",
+            "unknown": "アップロードに失敗しました。もう一度お試しください。"
+          }
+        },
         "createSubmit": "下書きを作成",
         "saveSubmit": "保存",
         "submitting": "処理中…",

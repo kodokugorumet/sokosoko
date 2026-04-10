@@ -326,6 +326,20 @@
         "excerptLabel": "요약 (선택 · 검색 결과와 목록 카드에 표시)",
         "excerptPlaceholder": "1~2줄 요약",
         "bodyLabel": "본문",
+        "cover": {
+          "label": "커버 이미지",
+          "hint": "목록 카드와 OG 공유 이미지에 사용돼요. 권장 1200×630 / 5MB 이하. JPEG / PNG / WebP / AVIF 지원.",
+          "chooseFile": "이미지 선택",
+          "uploading": "업로드 중…",
+          "replace": "교체",
+          "clear": "삭제",
+          "error": {
+            "empty": "파일을 선택해 주세요.",
+            "tooLarge": "파일 크기가 너무 커요 (최대 5MB).",
+            "badType": "지원하지 않는 이미지 형식이에요 (JPEG / PNG / WebP / AVIF 만 가능).",
+            "unknown": "업로드에 실패했어요. 다시 시도해 주세요."
+          }
+        },
         "createSubmit": "초안 작성",
         "saveSubmit": "저장",
         "submitting": "처리 중…",
