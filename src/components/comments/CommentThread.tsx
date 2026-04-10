@@ -181,8 +181,9 @@ function CommentCard({
       <p className="leading-relaxed break-words whitespace-pre-wrap text-zinc-800 dark:text-zinc-200">
         {comment.body}
       </p>
-      <div className="mt-2 flex items-center gap-3">
-        {canDelete || canModerate ? (
+      {/* Actions row (delete/hide) — stays inline */}
+      {canDelete || canModerate ? (
+        <div className="mt-2">
           <CommentActions
             commentId={comment.id}
             canDelete={canDelete}
@@ -190,16 +191,19 @@ function CommentCard({
             hidden={comment.hidden}
             revalidatePathHint={revalidatePathHint}
           />
-        ) : null}
-        {canReply ? (
-          <ReplyButton
-            targetType={targetType}
-            targetId={targetId}
-            parentId={comment.id}
-            revalidatePathHint={revalidatePathHint}
-          />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
+      {/* Reply button + form — rendered below the card body so the
+          textarea gets full width instead of being crammed into a
+          flex row alongside the action buttons. */}
+      {canReply ? (
+        <ReplyButton
+          targetType={targetType}
+          targetId={targetId}
+          parentId={comment.id}
+          revalidatePathHint={revalidatePathHint}
+        />
+      ) : null}
     </div>
   );
 }
